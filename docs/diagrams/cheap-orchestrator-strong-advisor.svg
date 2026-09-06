@@ -1,0 +1,21 @@
+<svg width="1440" height="820" viewBox="0 0 1440 820" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="arr" markerWidth="5" markerHeight="5" refX="4.2" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#64748b"/></marker><style>.title{font:700 30px Arial,sans-serif;fill:#0f172a}.sub{font:400 15px Arial,sans-serif;fill:#64748b}.h{font:700 18px Arial,sans-serif;fill:#0f172a}.mL{font:600 15px Arial,sans-serif;fill:#047857}.mS{font:600 15px Arial,sans-serif;fill:#7c3aed}.t{font:400 14px Arial,sans-serif;fill:#475569}.box{stroke-width:1.5;rx:18;ry:18}.line{stroke:#64748b;stroke-width:1.8;fill:none;marker-end:url(#arr)}.dash{stroke:#94a3b8;stroke-width:1.6;fill:none;stroke-dasharray:6 6;marker-end:url(#arr)}</style></defs>
+<rect width="1440" height="820" fill="#f8fafc"/>
+<text x="720" y="52" text-anchor="middle" class="title">Mode B · Cheap Orchestrator + Strong Advisor</text>
+<text x="720" y="80" text-anchor="middle" class="sub">Luna / Max handles daily orchestration; Sol / High is consulted only for difficult judgment.</text>
+<rect x="500" y="116" width="440" height="104" fill="#ecfdf5" stroke="#86efac" class="box"/>
+<text x="720" y="154" text-anchor="middle" class="h">Primary / Root Agent</text><text x="720" y="182" text-anchor="middle" class="mL">GPT-5.6 Luna / Max</text><text x="720" y="206" text-anchor="middle" class="t">Orchestrate · Execute · Integrate</text>
+<path d="M720 220 L720 262" class="line"/>
+<rect x="520" y="264" width="400" height="86" fill="#ffffff" stroke="#cbd5e1" class="box"/>
+<text x="720" y="299" text-anchor="middle" class="h">Routing Decision</text><text x="720" y="326" text-anchor="middle" class="t">Local · Parallel · Advisor</text>
+<path d="M670 350 C610 384 405 394 250 430" class="line"/><path d="M720 350 L720 430" class="line"/><path d="M770 350 C830 384 1035 394 1190 430" class="line"/>
+<rect x="60" y="430" width="380" height="176" fill="#ecfdf5" stroke="#86efac" class="box"/>
+<text x="250" y="470" text-anchor="middle" class="h">LUNA_LOCAL</text><text x="250" y="504" text-anchor="middle" class="h">Primary Luna</text><text x="250" y="534" text-anchor="middle" class="mL">GPT-5.6 Luna / Max</text><text x="250" y="566" text-anchor="middle" class="t">Local execution</text>
+<rect x="530" y="430" width="380" height="176" fill="#eff6ff" stroke="#93c5fd" class="box"/>
+<text x="720" y="470" text-anchor="middle" class="h">LUNA_PARALLEL</text><text x="720" y="504" text-anchor="middle" class="h">luna-worker(s)</text><text x="720" y="534" text-anchor="middle" class="mL">GPT-5.6 Luna / Max</text><text x="720" y="566" text-anchor="middle" class="t">Independent task packets</text>
+<rect x="1000" y="430" width="380" height="176" fill="#f5f3ff" stroke="#c4b5fd" class="box"/>
+<text x="1190" y="470" text-anchor="middle" class="h">SOL_ADVISED</text><text x="1190" y="504" text-anchor="middle" class="h">sol-advisor</text><text x="1190" y="534" text-anchor="middle" class="mS">GPT-5.6 Sol / High · Read-only</text><text x="1190" y="566" text-anchor="middle" class="t">Decision only</text>
+<path d="M250 606 C250 662 490 678 610 694" class="line"/><path d="M720 606 L720 694" class="line"/><path d="M1190 606 C1190 662 950 678 830 694" class="dash"/>
+<rect x="430" y="694" width="580" height="88" fill="#ecfdf5" stroke="#86efac" class="box"/>
+<text x="720" y="730" text-anchor="middle" class="h">Return Execution to Luna</text><text x="720" y="758" text-anchor="middle" class="t">Implement · Validate · Integrate · Accept</text>
+</svg>
