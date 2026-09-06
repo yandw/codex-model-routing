@@ -40,9 +40,9 @@ Agent Pool 只定义“有哪些角色、每个角色使用什么模型以及如
 
 ## 安装 Agents
 
-仓库中的 [`agents/`](agents/) 目录就是 **可直接安装的 Agent payload**。该目录只保留最终可运行的 `.toml` 文件，不放 README、示例或其他杂项。
+仓库中的 [`.codex/agents/`](.codex/agents/) 目录就是 **可直接安装的 Agent payload**。目录结构刻意与 Codex 的实际安装路径保持一致，并且只保留最终可运行的 `.toml` 文件。
 
-把 `agents/` 目录里的三个文件**直接复制到**：
+把 `.codex/agents/` 目录里的三个文件**直接复制到**：
 
 ```text
 ~/.codex/agents/
@@ -61,10 +61,10 @@ Agent Pool 只定义“有哪些角色、每个角色使用什么模型以及如
 
 ```bash
 mkdir -p ~/.codex/agents
-cp agents/*.toml ~/.codex/agents/
+cp .codex/agents/*.toml ~/.codex/agents/
 ```
 
-不要把整个 `agents` 目录再嵌套进去。以下路径是错误的：
+不要把仓库里的 `.codex/agents` 目录整体再嵌套一层。以下路径是错误的：
 
 ```text
 ~/.codex/agents/agents/luna-worker.toml
@@ -111,7 +111,7 @@ cp agents/*.toml ~/.codex/agents/
         ↓
 决定 Primary / Root 的默认运行模型
 
-agents/*.toml
+.codex/agents/*.toml
         ↓
 定义 Agent Capability Pool
 
@@ -133,9 +133,9 @@ AGENTS.md
 
 ## Agent Files
 
-- [`agents/luna-worker.toml`](agents/luna-worker.toml)
-- [`agents/sol-worker.toml`](agents/sol-worker.toml)
-- [`agents/sol-advisor.toml`](agents/sol-advisor.toml)
+- [`.codex/agents/luna-worker.toml`](.codex/agents/luna-worker.toml)
+- [`.codex/agents/sol-worker.toml`](.codex/agents/sol-worker.toml)
+- [`.codex/agents/sol-advisor.toml`](.codex/agents/sol-advisor.toml)
 
 ## Runtime Truth
 
@@ -166,10 +166,11 @@ AGENTS.md
 .
 ├── README.md
 ├── README.en.md
-├── agents/              # 直接复制其内容到 ~/.codex/agents/
-│   ├── luna-worker.toml
-│   ├── sol-worker.toml
-│   └── sol-advisor.toml
+├── .codex/
+│   └── agents/          # 直接复制其中的 TOML 到 ~/.codex/agents/
+│       ├── luna-worker.toml
+│       ├── sol-worker.toml
+│       └── sol-advisor.toml
 ├── docs/
 │   ├── diagrams/
 │   │   ├── strong-orchestrator.svg
