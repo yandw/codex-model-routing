@@ -69,34 +69,74 @@
 
 # 快速开始
 
-这个仓库的使用方式其实只有两层：
+第一次使用只需要在下面两种方式中选一种。
+
+## 方式 A — 让 Codex 自动安装（推荐）
+
+进入你真正要开发的项目目录，然后根据自己的 Root 使用习惯，把对应的 **Setup Prompt URL** 交给 Codex。
+
+### Strong Orchestrator — Sol High Root
+
+把下面这段直接发给 Codex：
 
 ```text
-全局一次安装
-~/.codex/agents/*.toml
-        ↓
-给 Codex 提供可调用的 Agent Capability Pool
+请先完整读取并严格执行下面的 Setup Prompt：
+https://raw.githubusercontent.com/yandw/codex-model-routing/main/prompts/setup-strong-orchestrator.prompt.md
 
-每个项目选择一次模式
-<your-repo>/AGENTS.md
-        ↓
-决定这个项目什么时候调用哪个 Agent
+将它视为本次 Codex Model Routing 安装与当前项目初始化的完整指令。
+不要省略其中的 Agent 安装、AGENTS.md routing 和验证步骤。
+如果无法读取该 URL，请停止并报告网络访问失败，不要猜测 Prompt 内容。
 ```
 
-也就是说：**Agent 文件通常只需要全局安装一次；每个自己的代码仓库，再选择喜欢的 routing mode 初始化 `AGENTS.md`。**
+### Cheap Orchestrator + Strong Advisor — Luna Max Root
 
-## Step 1 — 安装三个全局 Agents
-
-本仓库的 [`.codex/agents/`](.codex/agents/) 就是直接可安装的 Agent payload：
+把下面这段直接发给 Codex：
 
 ```text
-.codex/agents/
-├── luna-worker.toml
-├── sol-worker.toml
-└── sol-advisor.toml
+请先完整读取并严格执行下面的 Setup Prompt：
+https://raw.githubusercontent.com/yandw/codex-model-routing/main/prompts/setup-luna-first-advisor.prompt.md
+
+将它视为本次 Codex Model Routing 安装与当前项目初始化的完整指令。
+不要省略其中的 Agent 安装、AGENTS.md routing 和验证步骤。
+如果无法读取该 URL，请停止并报告网络访问失败，不要猜测 Prompt 内容。
 ```
 
-安装目标是：
+Setup Prompt 会一次完成：
+
+```text
+读取官方 Setup Prompt
+        ↓
+安装 / 更新 ~/.codex/agents/ 中三个 Custom Agents
+        ↓
+读取当前项目已有 AGENTS.md
+        ↓
+应用你选择的 routing mode
+        ↓
+保留无冲突的 Skills / worktree / TDD / testing / review / Git workflow
+        ↓
+校验安装、routing architecture 和能够读取到的 runtime evidence
+```
+
+**这是推荐的第一次安装方式。** 后续 Setup Prompt 更新后，新用户只要继续使用同一个 Raw URL，就会读取最新版本。
+
+> Codex 需要能够访问公开 GitHub / Raw URL。如果当前运行环境禁止网络访问，请使用下面的 Manual 方式。
+
+## 方式 B — Manual
+
+Manual 方式分两步：**手动安装 Agent → 在自己的项目里启用一种 routing mode。**
+
+### 1. 手动安装三个 Agent
+
+Clone 本仓库后执行：
+
+```bash
+git clone https://github.com/yandw/codex-model-routing.git
+cd codex-model-routing
+mkdir -p ~/.codex/agents
+cp .codex/agents/*.toml ~/.codex/agents/
+```
+
+最终应该得到：
 
 ```text
 ~/.codex/agents/
@@ -105,56 +145,28 @@
 └── sol-advisor.toml
 ```
 
-如果已经 clone 本仓库：
-
-```bash
-mkdir -p ~/.codex/agents
-cp .codex/agents/*.toml ~/.codex/agents/
-```
-
-也可以直接把下面这句话交给 Codex：
+不要安装成：
 
 ```text
-请把 https://github.com/yandw/codex-model-routing/tree/main/.codex/agents 中的
-luna-worker.toml、sol-worker.toml、sol-advisor.toml
-安装到当前用户的 ~/.codex/agents/ 目录。
-不要删除该目录中其他已有 Agent。
-安装完成后确认三个文件都直接位于 ~/.codex/agents/ 下。
+~/.codex/agents/agents/luna-worker.toml
 ```
 
-> 注意：最终路径应该是 `~/.codex/agents/luna-worker.toml`，不要安装成 `~/.codex/agents/agents/luna-worker.toml`。
+### 2. 在自己的项目里启用 routing mode
 
-## Step 2 — 进入你自己的仓库，选择一种工作模式
-
-进入你真正要开发的项目：
+进入目标项目：
 
 ```bash
 cd /path/to/your-project
 ```
 
-然后选择一种模式，把对应 Prompt **完整交给 Codex**。Prompt 会读取现有 `AGENTS.md`，只修改 routing layer，并尽量保留项目原本的 Skills、worktree、TDD、testing、debugging、review、Git workflow 等工程规则。
+然后选择一份 **AGENTS-only Prompt** 交给 Codex。它只负责当前项目的 `AGENTS.md` routing layer，不再安装全局 Agent。
 
-| 你的 Root 使用习惯 | 推荐模式 | 中文 Prompt | English |
+| Root 使用习惯 | 模式 | 中文 Prompt | English |
 |---|---|---|---|
-| 我习惯 Sol High 做主线程 | Strong Orchestrator | [`AGENTS.md Prompt`](prompts/strong-orchestrator-agents-md.prompt.md) | [`English`](prompts/en/strong-orchestrator-agents-md.prompt.md) |
-| 我习惯 Luna Max 做主线程 | Cheap Orchestrator + Strong Advisor | [`AGENTS.md Prompt`](prompts/luna-first-advisor-agents-md.prompt.md) | [`English`](prompts/en/luna-first-advisor-agents-md.prompt.md) |
+| Sol High 做主线程 | Strong Orchestrator | [`AGENTS.md Prompt`](prompts/strong-orchestrator-agents-md.prompt.md) | [`English`](prompts/en/strong-orchestrator-agents-md.prompt.md) |
+| Luna Max 做主线程 | Cheap Orchestrator + Strong Advisor | [`AGENTS.md Prompt`](prompts/luna-first-advisor-agents-md.prompt.md) | [`English`](prompts/en/luna-first-advisor-agents-md.prompt.md) |
 
-这两份属于 **AGENTS-only Prompt**：适合你已经安装过三个 Agent，只想给当前仓库启用 / 切换 routing mode 的情况。
-
-## 推荐：直接让 Codex 一次完成安装 + 项目初始化
-
-如果你不想手动区分 Step 1 / Step 2，可以直接在目标项目中，把下面任意一份 **One-shot Setup Prompt** 完整交给 Codex。
-
-它已经把两件事合并在一起：
-
-> **安装三个 Agent 的操作话术 + 对应模式完整的 `AGENTS.md` routing prompt。**
-
-| 模式 | 中文 One-shot Setup | English |
-|---|---|---|
-| Strong Orchestrator | [`直接复制给 Codex`](prompts/setup-strong-orchestrator.prompt.md) | [`English`](prompts/en/setup-strong-orchestrator.prompt.md) |
-| Cheap Orchestrator + Strong Advisor | [`直接复制给 Codex`](prompts/setup-luna-first-advisor.prompt.md) | [`English`](prompts/en/setup-luna-first-advisor.prompt.md) |
-
-**第一次使用本项目时，推荐直接用 One-shot Setup Prompt。** 后续在其他仓库里，因为 Agent 已经装过，通常只需要执行对应的 AGENTS-only Prompt。
+如果 Codex 可以访问公开 URL，也可以让它直接读取对应的 Raw AGENTS-only Prompt；如果不能，就打开文件并把内容复制给 Codex。
 
 ---
 
@@ -255,23 +267,23 @@ reasoning_effort = max
 
 ### 5. Preserve the user's Root habit
 
-Model Routing 应该增强你的工作习惯，而不是强迫所有人使用同一种 Root。两种模式正是为了保留 Sol-root 和 Luna-root 两种常见习惯。
+Model Routing 应该增强你的工作习惯，而不是强迫所有人都使用同一个 Root。两种模式分别保留 Sol-root 和 Luna-root 的使用方式。
 
 ### 6. Bounded task packet first
 
-worker 越便宜，越需要任务边界清楚。Objective、scope、writable files、acceptance criteria、validation 越明确，越容易把工作安全地下放给高性价比模型。
+越希望把执行交给高性价比 worker，就越需要明确 objective、scope、writable files、acceptance criteria 和 validation。清晰边界是低成本委派仍然可靠的前提。
 
 ### 7. Worker completion ≠ task completion
 
-worker 只负责自己的 packet。最终 integration、冲突解决和 acceptance 仍由当前模式定义的 owner 负责，避免“子 Agent 说完成了 = 整个任务完成了”。
+Worker 完成的是自己的 packet，不代表整个任务已经完成。integration、conflict resolution 和 final acceptance 仍由当前模式定义的 owner 负责。
 
 ### 8. No recursive agent tree by default
 
-worker 默认不能自己不断 spawn / 升级其他 Agent。Model Routing 权限要保持集中，否则很快会失去 Token 成本和职责边界的可控性。
+Worker 不应自行不断 spawn / 升级其他 Agent。Model Routing 权限保持集中，才能控制成本、职责和上下文扩散。
 
 ### 9. Runtime metadata is the source of truth
 
-静态配置只是 intent。真正评估一套分工是否有效，需要看实际 session 中调用了谁、用了什么 model / reasoning、完成质量如何。
+静态配置只是 intent。要研究模型分工是否真的更高效，最终必须看谁实际运行、用了什么 model / reasoning、完成质量和返工情况。
 
 ---
 
@@ -279,8 +291,8 @@ worker 默认不能自己不断 spawn / 升级其他 Agent。Model Routing 权�
 
 这项整理主要受到两组公开实践的启发：
 
-- **Vox / `@Voxyz_ai`**：启发了“强主线程负责判断与规划、把边界明确的执行工作交给 Luna Max”的思路。本仓库的 Strong Orchestrator 进一步加入 Sol Medium 层，用于 reasoning-heavy but bounded execution。
-- **BruceLanLan / `sol-luna-engineering-workflow`**：提供了更完整的 Luna-first + Sol Advisor 范式，包括 Luna primary、parallel Luna workers、Sol High read-only advisor、task packet、file ownership、escalation gates，以及 runtime evidence 才是实际模型事实来源等原则。
+- **Vox / `@Voxyz_ai`**：启发了“强主线程负责判断与规划、把边界明确的执行工作交给 Luna Max”的思路。Strong Orchestrator 进一步加入 Sol Medium，处理 reasoning-heavy but bounded execution。
+- **BruceLanLan / `sol-luna-engineering-workflow`**：提供了更完整的 Luna-first + Sol Advisor 范式，包括 Luna primary、parallel Luna workers、read-only Sol High advisor、task packet、file ownership、escalation gates，以及 runtime evidence 才是模型实际调用事实来源等原则。
 
 本仓库是在这些思路基础上的**整理、抽象、验证与扩展**，目标不是复刻某一个实现，而是持续探索不同模型之间更有效的工程分工。
 
@@ -321,11 +333,11 @@ worker 默认不能自己不断 spawn / 升级其他 Agent。Model Routing 权�
 
 ## Star & Fork
 
-如果这个项目对你的 Codex / multi-agent 工作流有帮助，欢迎给仓库一个 **Star**，让更多人看到这种基于模型分工、而不是所有任务都由单一强模型硬扛的工程方式。
+如果这个项目对你的 Codex / multi-agent 工作流有帮助，欢迎给仓库一个 **Star**，让更多人看到这种基于模型分工而不是单模型硬扛的工程方式。
 
-也非常欢迎 **Fork** 本仓库，尝试你自己的模型组合、Agent 角色、routing policy、Task Packet 或 escalation rule。不同任务类型、模型版本和工程习惯，很可能会得到不同的最优分工。
+也非常欢迎 **Fork** 本仓库，尝试你自己的模型组合、Agent 角色、routing policy、Task Packet 或 escalation rule。不同任务类型、不同模型版本和不同工程习惯，很可能会得到不同的最优分工。
 
-如果你验证出了更高效的 routing 方式，也欢迎带着 runtime evidence、实验结论或改进思路回来交流。这个仓库的目标不是给出一次性的“标准答案”，而是持续寻找 **更高的工程产出 / Token**。
+如果你验证出了更高效的 routing 方式，也欢迎把 runtime evidence、实验结论或改进思路带回来交流。这个仓库的目标不是给出一次性的“标准答案”，而是持续寻找 **更高的工程产出 / Token**。
 
 ## Status
 
