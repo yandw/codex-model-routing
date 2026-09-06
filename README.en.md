@@ -8,93 +8,95 @@ A research, experimentation, and reusable configuration repository for **Model-A
 
 This repository is not about simply asking “which model is stronger,” and it is not about sending every task to the strongest model by default.
 
-The real question is:
+The actual problem is:
 
-> **With limited tokens, quotas, and reasoning budget, how can different types of work be assigned to the most appropriate and cost-effective model so that each model mostly does what it is best at—and useful engineering output per token increases?**
+> **Given limited tokens, quotas, and reasoning budget, how can we assign different kinds of work to the most suitable and cost-effective model so that each model spends most of its budget on the work it is best at—and the system produces more useful engineering output per token?**
 
-Models differ not only in raw capability. They also have different strengths and cost structures across task understanding, architecture decisions, difficult reasoning, implementation, repository search, testing, mechanical edits, and parallel execution.
+Models are not just “stronger” or “weaker.” They often have different capability and cost profiles across requirement understanding, architecture judgment, difficult reasoning, code execution, search, testing, mechanical edits, and parallel work.
 
-Sending everything to an expensive model is simple, but consumes limited tokens quickly. Optimizing only for the cheapest model can be equally inefficient if poor judgment, rework, or context loss creates larger downstream costs.
+Sending everything to an expensive model is simple but burns scarce tokens. Optimizing only for the cheapest call can also be wasteful when misjudgment, rework, or context loss creates a larger total cost.
 
-This project therefore explores a more granular **Model Routing / Model Division of Labor** approach:
+This project therefore explores a finer-grained **Model Routing / Model Division of Labor** approach:
 
-- let cost-effective models handle clearly bounded, verifiable execution work;
-- reserve stronger reasoning models for architecture, ambiguity, high-risk decisions, and difficult root-cause analysis;
-- route work using factors such as cognitive complexity, ambiguity, risk, blast radius, reversibility, and verifiability;
-- reduce both “strong models doing mechanical work” and “weaker models making high-impact decisions”;
-- improve token efficiency without sacrificing engineering quality.
+- assign clear, bounded, verifiable execution to cost-effective models;
+- reserve stronger reasoning models for architecture, ambiguity, high-risk judgment, and difficult root-cause work;
+- route by cognitive complexity, ambiguity, risk, blast radius, reversibility, and verifiability;
+- reduce both “strong model doing mechanical work” and “cheap model making high-risk decisions” waste;
+- improve token efficiency without giving up engineering quality.
 
-A second principle is equally important: **preserve the user's existing Root-model habit.**
+Another important principle is: **preserve the user's existing Root-model habit.**
 
-Some users prefer Sol High as the primary thread and want it to keep ownership of planning, architecture, and final acceptance. Others prefer Luna Max as the daily primary and only want to borrow Sol High when difficult judgment is actually needed.
+Some users prefer Sol High as the primary thread and want it to retain planning, architecture, and final acceptance. Others prefer Luna Max for daily work and want to call Sol High only at difficult judgment points.
 
-So this repository does not prescribe one universally correct Root model. Instead, it asks:
+So this repository does not prescribe one universally correct Root model. Instead it asks:
 
-> **While keeping the user's preferred Root model unchanged, how can `AGENTS.md` orchestration policies and Custom Agents create a more efficient division of labor across models?**
+> **While preserving the user's Root-model habit, how can `AGENTS.md` orchestration policy and Custom Agents create a more efficient division of labor between models?**
 
-## Current validation
+## Two currently validated modes
 
-The repository currently contains two operating modes that have been validated in practical Codex multi-agent workflows:
+The repository currently contains two modes that have been tested in real workflows. They are not competitors and not an A/B test. They represent different working habits while validating the same core idea: **a good model division of labor can improve overall engineering efficiency and token utilization.**
 
-- **Mode A — Strong Orchestrator**: keep Sol High as Root, delegate low-ambiguity execution to Luna Max, and delegate bounded but reasoning-heavy execution to Sol Medium.
-- **Mode B — Cheap Orchestrator + Strong Advisor**: keep Luna Max as Root for daily work and consult a read-only Sol High Advisor only for high-value, high-risk, or high-ambiguity judgment.
+### Mode A — Strong Orchestrator
 
-These two modes are **not competing approaches and not an A/B test**. They represent different working habits while validating the same core hypothesis:
+![Strong Orchestrator](docs/diagrams/strong-orchestrator.svg)
 
-> **A good model division of labor lets expensive reasoning tokens concentrate where strong reasoning is actually required, while cost-effective models absorb large amounts of bounded and verifiable engineering execution.**
+Keep **Sol High as Root**:
 
-In current Codex multi-agent practice, both modes have demonstrated that:
+- LOW: low-ambiguity, verifiable execution → `luna-worker` / Luna Max;
+- MEDIUM: reasoning-heavy but still bounded execution → `sol-worker` / Sol Medium;
+- HIGH: architecture, ambiguity, high-risk judgment, integration, final acceptance → Root Sol High.
 
-- the routing architecture can be implemented in a real workflow;
-- Custom Agents can carry explicit model roles;
-- users can preserve their existing Root-model habit rather than replacing it;
-- worker / advisor boundaries can be controlled with Task Packets and escalation rules;
-- runtime/session JSONL can verify the actual model and reasoning effort used;
-- the division of labor produces good practical token utilization and engineering efficiency.
+Best for users who already prefer Sol High as Root but want to move large amounts of execution-token usage to better-suited models.
 
-“Validated” here means **practical executability and observed workflow effectiveness**. It does **not** mean these two topologies have been proven to be the theoretical global optimum. The repository remains an experimental baseline for testing additional tasks, model combinations, and routing rules in search of better model specialization.
+### Mode B — Cheap Orchestrator + Strong Advisor
 
-## Research Lineage / Inspirations
+![Cheap Orchestrator + Strong Advisor](docs/diagrams/cheap-orchestrator-strong-advisor.svg)
 
-This work is mainly inspired by two public practices:
+Keep **Luna Max as Root**:
 
-- **Vox / `@Voxyz_ai`**: inspired the idea of keeping judgment and planning in a strong primary thread while delegating clearly bounded execution to Luna Max. This repository's **Strong Orchestrator** mode extends that idea by splitting bounded execution into Luna Max and Sol Medium layers, distinguishing low-ambiguity execution from execution that requires deeper engineering reasoning.
-- **BruceLanLan / `sol-luna-engineering-workflow`**: provides a more complete **Luna-first + Sol Advisor** pattern, including Luna as the primary model, parallel Luna workers, a read-only Sol High advisor, task packets, file ownership, escalation gates, and the principle that runtime evidence—not static configuration—is the source of truth for actual model usage.
+- ordinary daily work → Primary Luna;
+- genuinely independent parallel tasks → `luna-worker` / Luna Max;
+- high-value, high-risk, high-ambiguity judgment → `sol-advisor` / Sol High, read-only;
+- after Sol returns a decision, implementation and validation return to Luna.
 
-This repository is an **organization, abstraction, validation, and extension** of those ideas. The goal is not to reproduce one implementation, but to keep exploring more effective engineering divisions of labor across models.
+Best for users who already prefer Luna Max as Root and want to buy stronger reasoning only at critical judgment points.
 
-References:
+In current Codex multi-agent practice, both modes have demonstrated that the routing architecture can be implemented, Custom Agents can hold explicit model roles, Root habits can be preserved, worker/advisor boundaries can be controlled, and runtime/session JSONL can be used to verify actual model usage.
 
-- Vox / `@Voxyz_ai`: https://x.com/Voxyz_ai/status/2083583538830410127
-- `@Lonely__MH`: https://x.com/Lonely__MH/status/2083762211449684344
-- BruceLanLan / sol-luna-engineering-workflow: https://github.com/BruceLanLan/sol-luna-engineering-workflow
+“Validated” here means practical runnability and observed workflow effectiveness. It **does not claim these topologies are theoretically globally optimal**. The repository will continue to test other tasks, model combinations, and runtime evidence.
 
-## Shared Agent Pool
+---
 
-A shared Custom Agent Pool can contain three roles:
+# Quick Start
+
+The repository has only two operational layers:
 
 ```text
-~/.codex/agents/
-├── luna-worker.toml   # GPT-5.6 Luna / Max: low-ambiguity, clearly bounded execution
-├── sol-worker.toml    # GPT-5.6 Sol / Medium: execution requiring stronger engineering reasoning
-└── sol-advisor.toml   # GPT-5.6 Sol / High: read-only, high-value judgment / advisory role
+Install once globally
+~/.codex/agents/*.toml
+        ↓
+provides Codex with an Agent Capability Pool
+
+Choose a mode per project
+<your-repo>/AGENTS.md
+        ↓
+defines when that project calls each Agent
 ```
 
-The Agent Pool defines which roles exist, which model each role uses, and how each role behaves.
+In practice: **install the Agent files globally once, then choose a routing mode inside each code repository you work on.**
 
-The project-level `AGENTS.md` determines how those roles are actually orchestrated.
+## Step 1 — Install the three global Agents
 
-## Install Agents
-
-The repository's [`.codex/agents/`](.codex/agents/) directory is the **direct-install Agent payload**. Its structure intentionally mirrors Codex's real installation path and contains only the final runnable `.toml` files.
-
-Copy the three files inside `.codex/agents/` **directly into**:
+The repository's [`.codex/agents/`](.codex/agents/) directory is the direct-install Agent payload:
 
 ```text
-~/.codex/agents/
+.codex/agents/
+├── luna-worker.toml
+├── sol-worker.toml
+└── sol-advisor.toml
 ```
 
-The final layout should be:
+The target layout is:
 
 ```text
 ~/.codex/agents/
@@ -103,111 +105,188 @@ The final layout should be:
 └── sol-advisor.toml
 ```
 
-If you cloned the repository, run:
+If you cloned this repository:
 
 ```bash
 mkdir -p ~/.codex/agents
 cp .codex/agents/*.toml ~/.codex/agents/
 ```
 
-Do **not** nest the repository's `.codex/agents` directory itself under the target directory. This is incorrect:
+Or paste this instruction into Codex:
 
 ```text
-~/.codex/agents/agents/luna-worker.toml
+Install luna-worker.toml, sol-worker.toml, and sol-advisor.toml from
+https://github.com/yandw/codex-model-routing/tree/main/.codex/agents
+into the current user's ~/.codex/agents/ directory.
+Do not delete unrelated existing agents.
+After installation, verify all three files are directly under ~/.codex/agents/.
 ```
 
-All three agents can coexist in the same global Agent Pool. Which roles are actually used—and how they are routed—still depends on the current project's `AGENTS.md`.
+> The final path should be `~/.codex/agents/luna-worker.toml`, not `~/.codex/agents/agents/luna-worker.toml`.
 
-## Mode A — Strong Orchestrator
+## Step 2 — Enter your own repository and choose one mode
 
-![Strong Orchestrator](docs/diagrams/strong-orchestrator.svg)
+Move into the project you actually want to develop:
 
-Core working habits:
-
-- Root Sol High always keeps global control;
-- LOW-complexity bounded execution → `luna-worker`;
-- MEDIUM-complexity reasoned execution → `sol-worker`;
-- HIGH-level judgment / architecture / integration → Root Sol High;
-- workers do not self-escalate models; escalation returns to Root;
-- `sol-advisor` is not part of the default automatic routing path.
-
-Best suited to users who already prefer Sol High as Root but want to move large amounts of execution-token consumption to more appropriate models.
-
-## Mode B — Cheap Orchestrator + Strong Advisor
-
-![Cheap Orchestrator + Strong Advisor](docs/diagrams/cheap-orchestrator-strong-advisor.svg)
-
-Core working habits:
-
-- Luna Max is the daily primary thread, routine execution layer, and normal acceptance owner;
-- straightforward work stays `LUNA_LOCAL`;
-- genuinely independent task packets use parallel `luna-worker`s;
-- only high-risk, high-ambiguity, or high-cost judgment is escalated to `sol-advisor`;
-- after Sol Advisor returns a decision / constraints / acceptance criteria, routine execution returns to Luna;
-- `sol-worker` is not part of the default automatic routing path.
-
-Best suited to users who already prefer Luna Max as Root and want to pay for stronger reasoning only at the judgment points that actually need it.
-
-> The two modes are not competitors. They are different orchestration styles / work habits. They can share the same Custom Agent Pool, but project-level `AGENTS.md` routing policies should remain mutually exclusive.
-
-## Architecture Layers
-
-```text
-.codex/config.toml / Codex App model selection
-        ↓
-defines the default Primary / Root runtime model
-
-.codex/agents/*.toml
-        ↓
-defines the Agent Capability Pool
-
-AGENTS.md
-        ↓
-defines the Orchestration / Routing Policy
+```bash
+cd /path/to/your-project
 ```
 
-## AGENTS.md Init Prompts
+Then choose one mode and give the corresponding Prompt **in full to Codex**. The prompt reads the existing `AGENTS.md`, changes only the routing layer, and tries to preserve existing Skills, worktrees, TDD, testing, debugging, review, Git workflow, and other engineering rules.
 
-The Chinese prompts are the default versions. English versions are provided for English-language projects.
+| Your Root habit | Recommended mode | 中文 | English Prompt |
+|---|---|---|---|
+| I prefer Sol High as primary | Strong Orchestrator | [`中文`](prompts/strong-orchestrator-agents-md.prompt.md) | [`AGENTS.md Prompt`](prompts/en/strong-orchestrator-agents-md.prompt.md) |
+| I prefer Luna Max as primary | Cheap Orchestrator + Strong Advisor | [`中文`](prompts/luna-first-advisor-agents-md.prompt.md) | [`AGENTS.md Prompt`](prompts/en/luna-first-advisor-agents-md.prompt.md) |
 
-| Mode | 中文（默认） | English |
+These are **AGENTS-only Prompts**. Use them when the three Agents are already installed and you only want to enable or switch the routing mode for the current repository.
+
+## Recommended: let Codex do installation + project initialization in one pass
+
+If you do not want to handle Step 1 and Step 2 separately, paste one of the following **One-shot Setup Prompts** into Codex from the target repository.
+
+Each one combines:
+
+> **Agent installation instructions + the full `AGENTS.md` routing prompt for the selected mode.**
+
+| Mode | 中文 One-shot Setup | English One-shot Setup |
 |---|---|---|
-| Strong Orchestrator | [`prompts/strong-orchestrator-agents-md.prompt.md`](prompts/strong-orchestrator-agents-md.prompt.md) | [`prompts/en/strong-orchestrator-agents-md.prompt.md`](prompts/en/strong-orchestrator-agents-md.prompt.md) |
-| Cheap Orchestrator + Strong Advisor | [`prompts/luna-first-advisor-agents-md.prompt.md`](prompts/luna-first-advisor-agents-md.prompt.md) | [`prompts/en/luna-first-advisor-agents-md.prompt.md`](prompts/en/luna-first-advisor-agents-md.prompt.md) |
+| Strong Orchestrator | [`中文`](prompts/setup-strong-orchestrator.prompt.md) | [`Paste into Codex`](prompts/en/setup-strong-orchestrator.prompt.md) |
+| Cheap Orchestrator + Strong Advisor | [`中文`](prompts/setup-luna-first-advisor.prompt.md) | [`Paste into Codex`](prompts/en/setup-luna-first-advisor.prompt.md) |
 
-Each pair of prompts is intentionally architecture-exclusive: if an incompatible routing architecture already exists in `AGENTS.md`, the prompt instructs Codex to replace the conflicting routing section rather than merge both modes.
+**For first-time setup, the One-shot Setup Prompt is the easiest path.** In later repositories, the Agents are usually already installed, so you normally only need the corresponding AGENTS-only Prompt.
 
-## Agent Files
+---
 
-- [`.codex/agents/luna-worker.toml`](.codex/agents/luna-worker.toml)
-- [`.codex/agents/sol-worker.toml`](.codex/agents/sol-worker.toml)
-- [`.codex/agents/sol-advisor.toml`](.codex/agents/sol-advisor.toml)
+# What do the three Agents actually do?
 
-## Runtime Truth
+`.codex/agents/` is not a directory of examples. It defines three concrete execution roles. `AGENTS.md` decides **when** to call each role; the TOML file decides **which model it uses, what permissions it has, and how it behaves once called**.
 
-Static TOML / `AGENTS.md` configuration **does not prove that a specific model actually ran**. The final source of truth is Codex App session / sub-agent runtime metadata.
+| Agent | Model / Reasoning | Permission | Main job | Position in the two modes |
+|---|---|---|---|---|
+| [`luna-worker`](.codex/agents/luna-worker.toml) | Luna / Max | workspace-write | Clear, bounded, verifiable execution: search, mechanical edits, small implementations, tests, docs | LOW in Mode A; parallel worker in Mode B |
+| [`sol-worker`](.codex/agents/sol-worker.toml) | Sol / Medium | workspace-write | Objective is known, but implementation needs cross-file understanding, difficult debugging, root-cause analysis, or localized engineering judgment | MEDIUM in Mode A; not used by default in Mode B |
+| [`sol-advisor`](.codex/agents/sol-advisor.toml) | Sol / High | **read-only** | Architecture, security, compatibility, data-integrity, difficult root-cause, and other high-value judgment; returns decisions/constraints instead of routine coding | SOL_ADVISED in Mode B; not used by default in Mode A |
 
-Expected roles:
+Why install all three? Together they form a shared **Agent Capability Pool**. Different projects can select different subsets through `AGENTS.md`, so you do not need to repeatedly install and remove agents when switching routing styles.
 
-| Role | Expected model | Reasoning |
+## What does each configuration layer control?
+
+```text
+Codex App / .codex/config.toml
+        ↓
+which model your current Root / Primary uses by default
+
+~/.codex/agents/*.toml
+        ↓
+which callable roles exist; each role's model / reasoning / permissions / behavior
+
+<project>/AGENTS.md
+        ↓
+when the current project calls each role and how escalation / integration / acceptance work
+```
+
+This is why installing TOML alone is not enough, and why writing only `AGENTS.md` is not enough. The two layers work together.
+
+---
+
+# How do you verify that Model Routing really worked?
+
+This section is an **installation acceptance check**, not a theoretical note.
+
+`AGENTS.md` and TOML only describe the routing you intend. They do not prove that Codex actually used the expected model at runtime. The source of truth is Codex session / Agent Activity / JSONL runtime metadata.
+
+For example, if you configure:
+
+```text
+luna-worker → gpt-5.6-luna / max
+```
+
+then you only know the routing actually worked when a real sub-agent session contains evidence such as:
+
+```text
+thread_source = subagent
+agent_role = luna-worker
+model = gpt-5.6-luna
+reasoning_effort = max
+```
+
+Expected mapping:
+
+| Role | Expected runtime model | Reasoning |
 |---|---|---|
 | `luna-worker` | `gpt-5.6-luna` | `max` |
 | `sol-worker` | `gpt-5.6-sol` | `medium` |
 | `sol-advisor` | `gpt-5.6-sol` | `high` |
 
-See [`docs/runtime-verification.md`](docs/runtime-verification.md).
+Check runtime especially after:
 
-## Design Principles
+- first installing these Agents;
+- changing project routing rules;
+- a Codex App / multi-agent update;
+- changing model names or reasoning configuration;
+- suspecting a worker did not use the intended model.
 
-1. **Optimize for useful work per token**: the goal is not the lowest call price, but higher total engineering output per token.
-2. **Use the cheapest capable model**: when ambiguity, risk, and reasoning demand allow it, prefer the more cost-effective model that can safely complete the task.
-3. **Difficulty ≠ Size**: many files do not necessarily mean a difficult task; a few lines touching authorization or security may require high reasoning.
-4. **Route by cognitive complexity**: consider ambiguity, blast radius, reversibility, risk, and verifiability.
-5. **Preserve the user's Root habit**: model routing should strengthen an existing workflow, not force everyone onto the same Root model.
-6. **Bounded task packet first**: model routing quality depends heavily on task decomposition quality.
-7. **Worker completion ≠ task completion**: final acceptance ownership depends on the selected orchestration mode.
-8. **No recursive agent tree by default**: workers should not continuously spawn their own workers.
-9. **Runtime metadata is the source of truth**.
+See [`docs/runtime-verification.md`](docs/runtime-verification.md) for JSONL inspection examples.
+
+---
+
+# Why is it designed this way?
+
+These rules are not intended to add process for its own sake. They exist to avoid the most common forms of Model Routing waste.
+
+### 1. Optimize for useful work per Token
+
+The goal is not the cheapest single call. The goal is **more correct, accepted engineering work per token**. A cheap model that causes repeated rework can be more expensive overall.
+
+### 2. Use the cheapest capable model
+
+When task risk, ambiguity, and reasoning demand allow it, use the more cost-effective model and reserve expensive reasoning for genuinely difficult decisions.
+
+### 3. Difficulty ≠ Size
+
+A thousand lines of mechanical edits may be ideal for Luna, while ten lines of authentication or migration logic may require high reasoning. File count and code volume are not routing criteria.
+
+### 4. Route by cognitive complexity
+
+The main signals are ambiguity, solution-path uncertainty, blast radius, reversibility, risk, and verifiability—not simply whether the task is “large.”
+
+### 5. Preserve the user's Root habit
+
+Model Routing should strengthen existing working habits rather than force everyone onto the same Root model. The two modes deliberately preserve both Sol-root and Luna-root styles.
+
+### 6. Bounded task packet first
+
+The cheaper the worker, the more important task boundaries become. Clear objectives, scope, writable files, acceptance criteria, and validation make it safer to delegate execution.
+
+### 7. Worker completion ≠ task completion
+
+A worker completes its packet, not the whole project task. Integration, conflict resolution, and final acceptance remain with the owner defined by the selected mode.
+
+### 8. No recursive agent tree by default
+
+Workers should not continuously spawn or self-escalate to other agents. Keeping model-routing authority centralized preserves cost control and clear ownership.
+
+### 9. Runtime metadata is the source of truth
+
+Static configuration is intent. Evaluating whether a model division of labor is actually effective requires looking at who ran, which model/reasoning level was used, and what quality of work resulted.
+
+---
+
+## Research lineage / inspirations
+
+This work is mainly inspired by two public practices:
+
+- **Vox / `@Voxyz_ai`**: inspired the idea of keeping judgment/planning in a strong primary thread while delegating bounded execution to Luna Max. Strong Orchestrator adds a Sol Medium layer for reasoning-heavy but bounded execution.
+- **BruceLanLan / `sol-luna-engineering-workflow`**: provides a more complete Luna-first + Sol Advisor pattern with Luna primary, parallel Luna workers, a read-only Sol High advisor, task packets, file ownership, escalation gates, and runtime evidence as the source of truth.
+
+This repository is an **organization, abstraction, validation, and extension** of those ideas. The goal is not to reproduce one implementation, but to keep exploring more efficient model divisions of labor.
+
+References:
+
+- Vox / `@Voxyz_ai`: https://x.com/Voxyz_ai/status/2083583538830410127
+- `@Lonely__MH`: https://x.com/Lonely__MH/status/2083762211449684344
+- BruceLanLan / sol-luna-engineering-workflow: https://github.com/BruceLanLan/sol-luna-engineering-workflow
 
 ## Repository Structure
 
@@ -216,34 +295,36 @@ See [`docs/runtime-verification.md`](docs/runtime-verification.md).
 ├── README.md
 ├── README.en.md
 ├── .codex/
-│   └── agents/          # copy the TOML files directly into ~/.codex/agents/
+│   └── agents/
 │       ├── luna-worker.toml
 │       ├── sol-worker.toml
 │       └── sol-advisor.toml
 ├── docs/
 │   ├── diagrams/
-│   │   ├── strong-orchestrator.svg
-│   │   └── cheap-orchestrator-strong-advisor.svg
 │   ├── mode-selection.md
 │   ├── research-notes.md
 │   ├── runtime-verification.md
 │   └── task-packet-template.md
 └── prompts/
+    ├── setup-strong-orchestrator.prompt.md
+    ├── setup-luna-first-advisor.prompt.md
     ├── strong-orchestrator-agents-md.prompt.md
     ├── luna-first-advisor-agents-md.prompt.md
     └── en/
+        ├── setup-strong-orchestrator.prompt.md
+        ├── setup-luna-first-advisor.prompt.md
         ├── strong-orchestrator-agents-md.prompt.md
         └── luna-first-advisor-agents-md.prompt.md
 ```
 
 ## Star & Fork
 
-If this project helps your Codex / multi-agent workflow, consider giving the repository a **Star** so more people can discover an engineering approach based on model specialization rather than forcing one model to do everything.
+If this project helps your Codex / multi-agent workflow, a **Star** helps more people discover an engineering approach based on model division of labor rather than making one strong model do everything.
 
-You are also very welcome to **Fork** the repository and experiment with your own model combinations, Agent roles, routing policies, Task Packets, and escalation rules. Different task classes, model versions, and engineering habits may produce different optimal divisions of labor.
+You are also very welcome to **Fork** the repository and try your own model combinations, Agent roles, routing policies, Task Packets, or escalation rules. Different task types, model versions, and engineering habits may lead to different optimal divisions of labor.
 
-If you find a more efficient routing pattern, contributions of runtime evidence, experiment results, or design ideas are welcome. The goal of this repository is not to publish a one-time “correct answer,” but to keep searching for **more useful engineering work per token**.
+If you find a more efficient routing approach, contributions backed by runtime evidence, experiment results, or practical observations are especially welcome. The goal is not a one-time “standard answer,” but continuously finding **more engineering output per token**.
 
 ## Status
 
-The repository remains a **research baseline / working configuration**. Both modes have been validated for practical executability and good observed workflow efficiency in real Codex multi-agent usage, and the project will continue evolving based on real JSONL / Agent Activity evidence, different model combinations, and different task types.
+This repository is a **research baseline / working configuration**. Both modes have demonstrated practical runnability and good workflow efficiency in real Codex multi-agent use, and will continue to evolve based on actual JSONL / Agent Activity, different model combinations, and different task types.
