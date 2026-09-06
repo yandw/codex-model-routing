@@ -1,5 +1,7 @@
 # Generate / Modify AGENTS.md — Strong Orchestrator Mode
 
+> Language: **中文** | [English](en/strong-orchestrator-agents-md.prompt.md)
+
 请修改当前项目根目录的 `AGENTS.md`，建立一套严格的 **Strong Orchestrator** Agent / Model Routing Architecture。
 
 本次修改只负责 Agent / Model Routing Layer，不重新设计项目已有的 engineering workflow。
