@@ -1,5 +1,7 @@
 # Codex Model Routing
 
+**简体中文** | [English](README.en.md)
+
 一套面向 Codex App / Codex multi-agent 的 **Model-Aware Orchestration** 研究与可复用配置。
 
 本仓库关注的不是“哪个模型更强”，而是：
@@ -84,10 +86,16 @@ AGENTS.md
 定义 Orchestration / Routing Policy
 ```
 
-本仓库提供两份互斥的 `AGENTS.md` 生成提示词：
+## AGENTS.md 初始化 Prompt
 
-- [`prompts/strong-orchestrator-agents-md.prompt.md`](prompts/strong-orchestrator-agents-md.prompt.md)
-- [`prompts/luna-first-advisor-agents-md.prompt.md`](prompts/luna-first-advisor-agents-md.prompt.md)
+中文版本为默认版本；英文项目可以直接使用对应的 English prompt。
+
+| 模式 | 中文（默认） | English |
+|---|---|---|
+| Strong Orchestrator | [`prompts/strong-orchestrator-agents-md.prompt.md`](prompts/strong-orchestrator-agents-md.prompt.md) | [`prompts/en/strong-orchestrator-agents-md.prompt.md`](prompts/en/strong-orchestrator-agents-md.prompt.md) |
+| Cheap Orchestrator + Strong Advisor | [`prompts/luna-first-advisor-agents-md.prompt.md`](prompts/luna-first-advisor-agents-md.prompt.md) | [`prompts/en/luna-first-advisor-agents-md.prompt.md`](prompts/en/luna-first-advisor-agents-md.prompt.md) |
+
+两套模式的 Prompt 仍然严格互斥：如果 `AGENTS.md` 中已经存在另一种 routing architecture，应替换冲突的 routing section，而不是将两种模式合并共存。
 
 ## Agent Files
 
@@ -123,6 +131,7 @@ AGENTS.md
 ```text
 .
 ├── README.md
+├── README.en.md
 ├── agents/
 │   ├── luna-worker.toml
 │   ├── sol-worker.toml
@@ -137,7 +146,10 @@ AGENTS.md
 │   └── task-packet-template.md
 └── prompts/
     ├── strong-orchestrator-agents-md.prompt.md
-    └── luna-first-advisor-agents-md.prompt.md
+    ├── luna-first-advisor-agents-md.prompt.md
+    └── en/
+        ├── strong-orchestrator-agents-md.prompt.md
+        └── luna-first-advisor-agents-md.prompt.md
 ```
 
 ## Status
