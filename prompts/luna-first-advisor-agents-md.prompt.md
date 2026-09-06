@@ -1,5 +1,7 @@
 # Generate / Modify AGENTS.md — Luna-first Advisor Mode
 
+> Language: **中文** | [English](en/luna-first-advisor-agents-md.prompt.md)
+
 请修改当前项目根目录的 `AGENTS.md`，建立一套严格的 **Luna-first / Cheap Orchestrator + Strong Advisor** Agent / Model Routing Architecture。
 
 本次修改只负责 Agent / Model Routing Layer，不重新设计项目已有的 engineering workflow。
