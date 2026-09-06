@@ -40,6 +40,40 @@ The Agent Pool defines which roles exist, which model each role uses, and how ea
 
 The project-level `AGENTS.md` determines how those roles are actually orchestrated.
 
+## Install Agents
+
+The repository's [`agents/`](agents/) directory is the **direct-install Agent payload**. It intentionally contains only the final runnable `.toml` files—no README, examples, or other files.
+
+Copy the three files inside `agents/` **directly into**:
+
+```text
+~/.codex/agents/
+```
+
+The final layout should be:
+
+```text
+~/.codex/agents/
+├── luna-worker.toml
+├── sol-worker.toml
+└── sol-advisor.toml
+```
+
+If you cloned the repository, run:
+
+```bash
+mkdir -p ~/.codex/agents
+cp agents/*.toml ~/.codex/agents/
+```
+
+Do **not** nest the repository's `agents` directory itself under the target directory. This is incorrect:
+
+```text
+~/.codex/agents/agents/luna-worker.toml
+```
+
+All three agents can coexist in the same global Agent Pool. Which roles are actually used—and how they are routed—still depends on the current project's `AGENTS.md`.
+
 ## Mode A — Strong Orchestrator
 
 ![Strong Orchestrator](docs/diagrams/strong-orchestrator.svg)
@@ -134,7 +168,7 @@ See [`docs/runtime-verification.md`](docs/runtime-verification.md).
 .
 ├── README.md
 ├── README.en.md
-├── agents/
+├── agents/              # copy its contents directly into ~/.codex/agents/
 │   ├── luna-worker.toml
 │   ├── sol-worker.toml
 │   └── sol-advisor.toml
