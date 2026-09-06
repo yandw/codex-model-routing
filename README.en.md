@@ -42,9 +42,9 @@ The project-level `AGENTS.md` determines how those roles are actually orchestrat
 
 ## Install Agents
 
-The repository's [`agents/`](agents/) directory is the **direct-install Agent payload**. It intentionally contains only the final runnable `.toml` files—no README, examples, or other files.
+The repository's [`.codex/agents/`](.codex/agents/) directory is the **direct-install Agent payload**. Its structure intentionally mirrors Codex's real installation path and contains only the final runnable `.toml` files.
 
-Copy the three files inside `agents/` **directly into**:
+Copy the three files inside `.codex/agents/` **directly into**:
 
 ```text
 ~/.codex/agents/
@@ -63,10 +63,10 @@ If you cloned the repository, run:
 
 ```bash
 mkdir -p ~/.codex/agents
-cp agents/*.toml ~/.codex/agents/
+cp .codex/agents/*.toml ~/.codex/agents/
 ```
 
-Do **not** nest the repository's `agents` directory itself under the target directory. This is incorrect:
+Do **not** nest the repository's `.codex/agents` directory itself under the target directory. This is incorrect:
 
 ```text
 ~/.codex/agents/agents/luna-worker.toml
@@ -113,7 +113,7 @@ Best suited to workflows that prefer a lower-cost primary thread with strong exp
         ↓
 defines the default Primary / Root runtime model
 
-agents/*.toml
+.codex/agents/*.toml
         ↓
 defines the Agent Capability Pool
 
@@ -135,9 +135,9 @@ Each pair of prompts is intentionally architecture-exclusive: if an incompatible
 
 ## Agent Files
 
-- [`agents/luna-worker.toml`](agents/luna-worker.toml)
-- [`agents/sol-worker.toml`](agents/sol-worker.toml)
-- [`agents/sol-advisor.toml`](agents/sol-advisor.toml)
+- [`.codex/agents/luna-worker.toml`](.codex/agents/luna-worker.toml)
+- [`.codex/agents/sol-worker.toml`](.codex/agents/sol-worker.toml)
+- [`.codex/agents/sol-advisor.toml`](.codex/agents/sol-advisor.toml)
 
 ## Runtime Truth
 
@@ -168,10 +168,11 @@ See [`docs/runtime-verification.md`](docs/runtime-verification.md).
 .
 ├── README.md
 ├── README.en.md
-├── agents/              # copy its contents directly into ~/.codex/agents/
-│   ├── luna-worker.toml
-│   ├── sol-worker.toml
-│   └── sol-advisor.toml
+├── .codex/
+│   └── agents/          # copy the TOML files directly into ~/.codex/agents/
+│       ├── luna-worker.toml
+│       ├── sol-worker.toml
+│       └── sol-advisor.toml
 ├── docs/
 │   ├── diagrams/
 │   │   ├── strong-orchestrator.svg
