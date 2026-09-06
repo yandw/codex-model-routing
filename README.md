@@ -38,6 +38,40 @@
 
 Agent Pool 只定义“有哪些角色、每个角色使用什么模型以及如何工作”。真正决定当前项目如何调度它们的是项目自己的 `AGENTS.md`。
 
+## 安装 Agents
+
+仓库中的 [`agents/`](agents/) 目录就是 **可直接安装的 Agent payload**。该目录只保留最终可运行的 `.toml` 文件，不放 README、示例或其他杂项。
+
+把 `agents/` 目录里的三个文件**直接复制到**：
+
+```text
+~/.codex/agents/
+```
+
+最终应是：
+
+```text
+~/.codex/agents/
+├── luna-worker.toml
+├── sol-worker.toml
+└── sol-advisor.toml
+```
+
+如果已经 clone 本仓库，可直接执行：
+
+```bash
+mkdir -p ~/.codex/agents
+cp agents/*.toml ~/.codex/agents/
+```
+
+不要把整个 `agents` 目录再嵌套进去。以下路径是错误的：
+
+```text
+~/.codex/agents/agents/luna-worker.toml
+```
+
+三个 Agent 可以同时安装；当前项目究竟使用哪些角色、如何路由，仍由该项目的 `AGENTS.md` 决定。
+
 ## Mode A — Strong Orchestrator
 
 ![Strong Orchestrator](docs/diagrams/strong-orchestrator.svg)
@@ -132,7 +166,7 @@ AGENTS.md
 .
 ├── README.md
 ├── README.en.md
-├── agents/
+├── agents/              # 直接复制其内容到 ~/.codex/agents/
 │   ├── luna-worker.toml
 │   ├── sol-worker.toml
 │   └── sol-advisor.toml
