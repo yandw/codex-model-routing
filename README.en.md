@@ -69,34 +69,74 @@ In current Codex multi-agent practice, both modes have demonstrated that the rou
 
 # Quick Start
 
-The repository has only two operational layers:
+Choose one of the following two setup paths.
+
+## Option A — Let Codex install everything (recommended)
+
+Open the repository you actually want to work on, then give Codex the matching **Setup Prompt URL** for your preferred Root-model habit.
+
+### Strong Orchestrator — Sol High Root
+
+Paste this into Codex:
 
 ```text
-Install once globally
-~/.codex/agents/*.toml
-        ↓
-provides Codex with an Agent Capability Pool
+First read the following Setup Prompt in full and execute it strictly:
+https://raw.githubusercontent.com/yandw/codex-model-routing/main/prompts/en/setup-strong-orchestrator.prompt.md
 
-Choose a mode per project
-<your-repo>/AGENTS.md
-        ↓
-defines when that project calls each Agent
+Treat it as the complete instruction set for installing Codex Model Routing and initializing the current project.
+Do not skip Agent installation, AGENTS.md routing, or validation steps.
+If the URL cannot be read, stop and report the network-access failure instead of guessing the Prompt contents.
 ```
 
-In practice: **install the Agent files globally once, then choose a routing mode inside each code repository you work on.**
+### Cheap Orchestrator + Strong Advisor — Luna Max Root
 
-## Step 1 — Install the three global Agents
-
-The repository's [`.codex/agents/`](.codex/agents/) directory is the direct-install Agent payload:
+Paste this into Codex:
 
 ```text
-.codex/agents/
-├── luna-worker.toml
-├── sol-worker.toml
-└── sol-advisor.toml
+First read the following Setup Prompt in full and execute it strictly:
+https://raw.githubusercontent.com/yandw/codex-model-routing/main/prompts/en/setup-luna-first-advisor.prompt.md
+
+Treat it as the complete instruction set for installing Codex Model Routing and initializing the current project.
+Do not skip Agent installation, AGENTS.md routing, or validation steps.
+If the URL cannot be read, stop and report the network-access failure instead of guessing the Prompt contents.
 ```
 
-The target layout is:
+The Setup Prompt performs the whole flow:
+
+```text
+Read the canonical Setup Prompt
+        ↓
+install / update the three Custom Agents under ~/.codex/agents/
+        ↓
+read the current project's existing AGENTS.md
+        ↓
+apply the selected routing mode
+        ↓
+preserve non-conflicting Skills / worktree / TDD / testing / review / Git workflow
+        ↓
+validate installation, routing architecture, and any runtime evidence that is available
+```
+
+**This is the recommended first-time setup path.** Future updates to the Setup Prompt are picked up automatically because the Raw URL stays the same.
+
+> Codex must be able to access public GitHub / Raw URLs. If the current environment blocks network access, use the Manual option below.
+
+## Option B — Manual
+
+The Manual path has two steps: **install the Agents yourself → enable one routing mode in your own project.**
+
+### 1. Install the three Agents manually
+
+Clone this repository and run:
+
+```bash
+git clone https://github.com/yandw/codex-model-routing.git
+cd codex-model-routing
+mkdir -p ~/.codex/agents
+cp .codex/agents/*.toml ~/.codex/agents/
+```
+
+The final layout should be:
 
 ```text
 ~/.codex/agents/
@@ -105,56 +145,28 @@ The target layout is:
 └── sol-advisor.toml
 ```
 
-If you cloned this repository:
-
-```bash
-mkdir -p ~/.codex/agents
-cp .codex/agents/*.toml ~/.codex/agents/
-```
-
-Or paste this instruction into Codex:
+Do not install them as:
 
 ```text
-Install luna-worker.toml, sol-worker.toml, and sol-advisor.toml from
-https://github.com/yandw/codex-model-routing/tree/main/.codex/agents
-into the current user's ~/.codex/agents/ directory.
-Do not delete unrelated existing agents.
-After installation, verify all three files are directly under ~/.codex/agents/.
+~/.codex/agents/agents/luna-worker.toml
 ```
 
-> The final path should be `~/.codex/agents/luna-worker.toml`, not `~/.codex/agents/agents/luna-worker.toml`.
+### 2. Enable one routing mode in your own project
 
-## Step 2 — Enter your own repository and choose one mode
-
-Move into the project you actually want to develop:
+Move into the target project:
 
 ```bash
 cd /path/to/your-project
 ```
 
-Then choose one mode and give the corresponding Prompt **in full to Codex**. The prompt reads the existing `AGENTS.md`, changes only the routing layer, and tries to preserve existing Skills, worktrees, TDD, testing, debugging, review, Git workflow, and other engineering rules.
+Then give Codex one **AGENTS-only Prompt**. It changes only the current project's `AGENTS.md` routing layer and does not reinstall the global Agents.
 
-| Your Root habit | Recommended mode | 中文 | English Prompt |
+| Root habit | Mode | 中文 | English Prompt |
 |---|---|---|---|
-| I prefer Sol High as primary | Strong Orchestrator | [`中文`](prompts/strong-orchestrator-agents-md.prompt.md) | [`AGENTS.md Prompt`](prompts/en/strong-orchestrator-agents-md.prompt.md) |
-| I prefer Luna Max as primary | Cheap Orchestrator + Strong Advisor | [`中文`](prompts/luna-first-advisor-agents-md.prompt.md) | [`AGENTS.md Prompt`](prompts/en/luna-first-advisor-agents-md.prompt.md) |
+| Sol High as primary | Strong Orchestrator | [`中文`](prompts/strong-orchestrator-agents-md.prompt.md) | [`AGENTS.md Prompt`](prompts/en/strong-orchestrator-agents-md.prompt.md) |
+| Luna Max as primary | Cheap Orchestrator + Strong Advisor | [`中文`](prompts/luna-first-advisor-agents-md.prompt.md) | [`AGENTS.md Prompt`](prompts/en/luna-first-advisor-agents-md.prompt.md) |
 
-These are **AGENTS-only Prompts**. Use them when the three Agents are already installed and you only want to enable or switch the routing mode for the current repository.
-
-## Recommended: let Codex do installation + project initialization in one pass
-
-If you do not want to handle Step 1 and Step 2 separately, paste one of the following **One-shot Setup Prompts** into Codex from the target repository.
-
-Each one combines:
-
-> **Agent installation instructions + the full `AGENTS.md` routing prompt for the selected mode.**
-
-| Mode | 中文 One-shot Setup | English One-shot Setup |
-|---|---|---|
-| Strong Orchestrator | [`中文`](prompts/setup-strong-orchestrator.prompt.md) | [`Paste into Codex`](prompts/en/setup-strong-orchestrator.prompt.md) |
-| Cheap Orchestrator + Strong Advisor | [`中文`](prompts/setup-luna-first-advisor.prompt.md) | [`Paste into Codex`](prompts/en/setup-luna-first-advisor.prompt.md) |
-
-**For first-time setup, the One-shot Setup Prompt is the easiest path.** In later repositories, the Agents are usually already installed, so you normally only need the corresponding AGENTS-only Prompt.
+If Codex can access public URLs, you can also ask it to read the corresponding Raw AGENTS-only Prompt directly. If not, open the file and paste its contents into Codex.
 
 ---
 
