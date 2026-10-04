@@ -26,44 +26,47 @@
 
 另一个重要原则是：**不破坏用户已经形成的 Root 模型使用习惯。**
 
-有人习惯使用 Sol High 作为主线程，希望它持续掌握规划、架构和最终验收；也有人更愿意使用 Luna Max 作为日常主线程，只在真正需要高级判断时调用 Sol High。
+有人习惯使用 Sol High 作为主线程，希望它持续掌握规划、架构和最终验收；也有人更愿意使用 Luna Max 作为日常主线程，只在真正需要高级判断时咨询 Sol 或 Astra。
 
 所以这个仓库不是试图规定唯一正确的 Root 模型，而是尝试回答：
 
 > **在保持用户 Root 模型习惯不变的前提下，怎样通过 `AGENTS.md` 的 orchestration policy 和 Custom Agents，让不同模型形成更高效的分工？**
 
-## 当前验证的两种模式
+## 两种模式 · GPT-6 迁移基线
 
-目前整理了两种已经实际验证过的工作模式。它们不是竞争关系，也不是 A/B Test，而是两种不同的工作习惯，用来验证同一个核心命题：**合理的模型分工可以提高整体工程效率与 Token 利用率。**
+保留两种 Root 使用习惯。四个角色的模型/effort 已完成一次实际调用核验；顾问有效权限仍不匹配，完整路由流程尚待验证。旧版 GPT-5.6 的实践结果不能代替新版证据。
 
 ### Mode A — Strong Orchestrator
 
 ![Strong Orchestrator](docs/diagrams/strong-orchestrator.svg)
 
-保留 **Sol High 作为 Root**：
+默认 **GPT-6.1 Sol / high 作为 Root**，也支持用户明确选择 **GPT-6 Astra / high Root**：
 
-- LOW：低歧义、可验证执行 → `luna-worker` / Luna Max；
-- MEDIUM：需要较强工程推理的 bounded execution → `sol-worker` / Sol Medium；
-- HIGH：架构、歧义、高风险判断、integration、final acceptance → Root Sol High。
+- Root 能可靠执行并验证，且本地执行更经济或已具充分上下文 → Root；
+- 清晰、bounded、可验证且值得委派的执行 → `luna-worker` / GPT-6 Luna / max；
+- 目标明确但需要跨文件推理、复杂调试的执行 → `sol-worker` / GPT-6.1 Sol / medium；
+- 需求、架构、路由、集成和最终验收 → Root；
+- Sol Root 经调查仍无法可靠解决的重大判断，或高失败代价且歧义显著的决策 → `astra-advisor` / GPT-6 Astra / high，只读咨询。
 
-适合已经习惯使用 Sol High 作为 Root，同时希望把大量执行型 Token 转移给更合适模型的用户。
+Astra Root 自己处理最高难度判断，不例行再调用 Astra 顾问。`sol-advisor` 在本模式不默认使用，仅在用户明确要求独立咨询时调用。
 
 ### Mode B — Cheap Orchestrator + Strong Advisor
 
 ![Cheap Orchestrator + Strong Advisor](docs/diagrams/cheap-orchestrator-strong-advisor.svg)
 
-保留 **Luna Max 作为 Root**：
+保留 **GPT-6 Luna / max 作为 Root**：
 
-- 普通日常工作 → Primary Luna；
-- 真正独立的并行任务 → `luna-worker` / Luna Max；
-- 高价值、高风险、高歧义 Judgment → `sol-advisor` / Sol High，只读咨询；
-- Sol 给出 decision 后，implementation / validation 回到 Luna。
+- `LUNA_LOCAL`：日常工作由 Luna 自行执行和验证；
+- `LUNA_PARALLEL`：独立、值得并行的明确任务 → `luna-worker`；
+- `SOL_EXECUTION`：目标和范围明确，但实现超出 Luna 的可靠能力 → `sol-worker`；
+- `SOL_ADVISED`：需要较强判断的局部设计、兼容性取舍或根因分析 → `sol-advisor`，只读；
+- `ASTRA_ADVISED`：高失败代价且歧义显著、跨系统重大取舍，或 Sol 咨询后仍未解决的重大判断 → `astra-advisor`，只读。
 
-适合已经习惯使用 Luna Max 作为 Root，希望只在关键判断点调用更强推理能力的用户。
+顾问意见返回 Luna，由 Luna 选择自己或适合的 worker 实现；Luna 保留调度、集成和最终验收责任。Sol worker 可以执行单个独立任务，不要求先咨询或先形成并行任务。
 
-在当前 Codex multi-agent 实践中，两种模式都已经验证：routing architecture 可以落地、Custom Agent 可以承担明确模型角色、Root 使用习惯可以保持、worker / advisor 边界可以控制，并且 runtime/session JSONL 可以用于确认实际模型调用。
+两种模式都允许 Root 直接选择合适层级，无需逐级经过所有模型。缺少权限、工具或用户事实应先解决对应阻塞；升级模型不能补齐这些缺失。
 
-这里的“验证”指实际工作流中的可运行性与实践效果，**不是宣称这两种拓扑已经是理论上的全局最优解**。项目会继续通过不同任务、模型组合和真实 runtime evidence，探索更优的分工方式。
+模型与 reasoning 分别配置。上述档位是迁移起点，尚未证实最优。任务质量、耗时、Token 和返工成本需通过代表性任务比较。官方模型定位见 [GPT-6 指南](https://developers.openai.com/api/docs/guides/latest-model)（2026-10-03 核对）；具体分工是本项目的设计建议。
 
 ---
 
@@ -75,7 +78,7 @@
 
 进入你真正要开发的项目目录，然后根据自己的 Root 使用习惯，把对应的 **Setup Prompt URL** 交给 Codex。
 
-### Strong Orchestrator — Sol High Root
+### Strong Orchestrator — Sol High / 可选 Astra High Root
 
 把下面这段直接发给 Codex：
 
@@ -106,7 +109,7 @@ Setup Prompt 会一次完成：
 ```text
 读取官方 Setup Prompt
         ↓
-安装 / 更新 ~/.codex/agents/ 中三个 Custom Agents
+安装 / 更新 ~/.codex/agents/ 中四个 Custom Agents
         ↓
 读取当前项目已有 AGENTS.md
         ↓
@@ -125,7 +128,7 @@ Setup Prompt 会一次完成：
 
 Manual 方式分两步：**手动安装 Agent → 在自己的项目里启用一种 routing mode。**
 
-### 1. 手动安装三个 Agent
+### 1. 手动安装四个 Agent
 
 Clone 本仓库后执行：
 
@@ -142,7 +145,8 @@ cp .codex/agents/*.toml ~/.codex/agents/
 ~/.codex/agents/
 ├── luna-worker.toml
 ├── sol-worker.toml
-└── sol-advisor.toml
+├── sol-advisor.toml
+└── astra-advisor.toml
 ```
 
 不要安装成：
@@ -163,24 +167,39 @@ cd /path/to/your-project
 
 | Root 使用习惯 | 模式 | 中文 Prompt | English |
 |---|---|---|---|
-| Sol High 做主线程 | Strong Orchestrator | [`AGENTS.md Prompt`](prompts/strong-orchestrator-agents-md.prompt.md) | [`English`](prompts/en/strong-orchestrator-agents-md.prompt.md) |
+| Sol High / Astra High 做主线程 | Strong Orchestrator | [`AGENTS.md Prompt`](prompts/strong-orchestrator-agents-md.prompt.md) | [`English`](prompts/en/strong-orchestrator-agents-md.prompt.md) |
 | Luna Max 做主线程 | Cheap Orchestrator + Strong Advisor | [`AGENTS.md Prompt`](prompts/luna-first-advisor-agents-md.prompt.md) | [`English`](prompts/en/luna-first-advisor-agents-md.prompt.md) |
 
 如果 Codex 可以访问公开 URL，也可以让它直接读取对应的 Raw AGENTS-only Prompt；如果不能，就打开文件并把内容复制给 Codex。
 
 ---
 
-# 三个 Agent 分别是干什么的？
+# 四个 Agent 分别是干什么的？
 
-`.codex/agents/` 不是三份“示例配置”，而是三种明确的执行角色。`AGENTS.md` 决定何时调用它们，而 TOML 文件决定“被调用以后这个 Agent 用什么模型、有什么权限、应该怎么工作”。
+`AGENTS.md` 决定何时调用角色；TOML 决定角色的模型、推理档位、权限和行为。
 
-| Agent | 模型 / Reasoning | 权限 | 主要职责 | 在两种模式里的位置 |
-|---|---|---|---|---|
-| [`luna-worker`](.codex/agents/luna-worker.toml) | Luna / Max | workspace-write | 清晰、bounded、可验证的执行：检索、机械修改、小型实现、tests、docs | Mode A 的 LOW；Mode B 的并行 worker |
-| [`sol-worker`](.codex/agents/sol-worker.toml) | Sol / Medium | workspace-write | objective 已明确，但 implementation path 需要跨文件理解、复杂 debugging、root-cause 或局部工程判断 | Mode A 的 MEDIUM；Mode B 默认不用 |
-| [`sol-advisor`](.codex/agents/sol-advisor.toml) | Sol / High | **read-only** | 架构、安全、兼容性、数据完整性、高风险 root cause 等高价值 Judgment，只给 decision / constraints，不做日常 coding | Mode B 的 SOL_ADVISED；Mode A 默认不用 |
+| Agent | 模型 / Reasoning | 权限 | 职责与模式 |
+|---|---|---|---|
+| [`luna-worker`](.codex/agents/luna-worker.toml) | `gpt-6-luna / max` | workspace-write | 明确、可验证的执行；两种模式共用 |
+| [`sol-worker`](.codex/agents/sol-worker.toml) | `gpt-6.1-sol / medium` | workspace-write | 边界明确但需要较强推理的执行；两种模式共用 |
+| [`sol-advisor`](.codex/agents/sol-advisor.toml) | `gpt-6.1-sol / high` | **read-only** | 局部设计、兼容性取舍、复杂根因判断；Mode B 按需咨询，Mode A 仅用户明确要求时使用 |
+| [`astra-advisor`](.codex/agents/astra-advisor.toml) | `gpt-6-astra / high` | **read-only** | 高代价、高歧义或重大跨系统决策；Mode A 的 Sol Root 与 Mode B 按需咨询 |
 
-为什么三个都建议安装？因为它们组成一个共享的 **Agent Capability Pool**。不同项目通过不同 `AGENTS.md` 选择其中一部分使用，不需要每换一种模式就反复安装 / 删除 Agent。
+四个角色组成共享 Agent Pool，不要求每次任务都调用。Worker 和 advisor 均将升级问题返回 Root，不自行创建其他 agent。Advisor 的意见不能代替实际验证。
+
+## Effort 与权限兼容性
+
+角色 effort 是 TOML 中的固定基线。调整时需同步 TOML、项目映射和验证预期，重新加载后核对实际元数据。Custom Agent 文件里的模型/effort 优先于调用参数；本版不承诺按任务动态切换 effort。当前接口使用 `agent_type` 和 `fork_turns="none"`，不同时传入冲突的模型/effort 覆盖值。客户端没有角色选择入口时，仅安装文件不能验证这套架构。
+
+表中 Advisor 的 `read-only` 是所需沙箱，不代表每种宿主都已强制执行。父会话的实时权限可能覆盖角色默认值。实质咨询前先做无工具握手，验证有效 sandbox/approval 元数据；不匹配或缺少证据时停止该咨询。可在独立只读环境/会话中继续验证，不自动更改全局权限。外部连接器权限与 Shell 沙箱也需区分。参见[官方子 Agent 配置](https://learn.chatgpt.com/docs/agent-configuration/subagents)和[运行时验证指南](docs/runtime-verification.md)。
+
+## 已安装用户如何升级
+
+重新执行所选模式的 Setup Prompt。四个 TOML 和项目 routing section 需要一起更新，单独替换模型名会残留旧路由规则。手动覆盖已有 Agent 文件前先备份。
+
+Mode A 新增可选 Astra Root profile，以及 Sol Root 的 Astra 咨询路径。Mode B 移除旧版禁用 `sol-worker` 的规则，咨询后的实现由 Root 交给适合的执行者。保留一个 architecture marker 和一个选定 Root profile，分别验证角色注册和实际 runtime。
+
+Raw Setup URL 指向 GitHub `main` 已发布版本。本地修改不会更新这些 URL；尚未发布的 checkout 应使用本地 Agent 文件和本地 AGENTS-only Prompt。
 
 ## 三层配置分别控制什么？
 
@@ -204,44 +223,20 @@ Codex App / .codex/config.toml
 
 # 如何确认 Model Routing 真的生效？
 
-这一段不是理论说明，而是**安装后的验收方法**。
+分开检查三个层面：仓库配置、当前会话已注册角色、实际运行证据。磁盘 TOML 更新不代表当前会话已经重新加载，更不代表子 agent 已按预期运行。
 
-`AGENTS.md` 和 TOML 只能说明“我们希望 Codex 怎么路由”，不能证明运行时真的调用了对应模型。真正的事实来源是 Codex session / Agent Activity / JSONL runtime metadata。
-
-例如，你配置了：
-
-```text
-luna-worker → gpt-5.6-luna / max
-```
-
-只有当实际 sub-agent session 中也看到类似：
-
-```text
-thread_source = subagent
-agent_role = luna-worker
-model = gpt-5.6-luna
-reasoning_effort = max
-```
-
-才能确认这个 worker **实际**按预期运行。
-
-当前预期映射：
-
-| Role | 预期实际模型 | Reasoning |
+| Role | 预期模型 | Reasoning |
 |---|---|---|
-| `luna-worker` | `gpt-5.6-luna` | `max` |
-| `sol-worker` | `gpt-5.6-sol` | `medium` |
-| `sol-advisor` | `gpt-5.6-sol` | `high` |
+| `luna-worker` | `gpt-6-luna` | `max` |
+| `sol-worker` | `gpt-6.1-sol` | `medium` |
+| `sol-advisor` | `gpt-6.1-sol` | `high` |
+| `astra-advisor` | `gpt-6-astra` | `high` |
 
-建议在以下情况检查 runtime：
+Root 也需匹配选定 profile：Mode A 默认 `gpt-6.1-sol / high`，可选 `gpt-6-astra / high`；Mode B 默认 `gpt-6-luna / max`。用户明确选择的其他受支持 reasoning 应记录为自定义 profile。
 
-- 第一次安装这些 Agent 后；
-- 修改 `AGENTS.md` routing 后；
-- Codex App / multi-agent 机制升级后；
-- 模型名称或 reasoning 配置调整后；
-- 你怀疑 worker 没有使用预期模型时。
+安装后如果当前会话缺少角色或显示旧映射，按客户端要求重新加载/开启会话，再核对角色和实际 runtime。提示词不能切换当前线程的模型；发现 mismatch 应报告，不自动修改全局配置或静默回退。
 
-详细的 JSONL 检查方法与示例见 [`docs/runtime-verification.md`](docs/runtime-verification.md)。
+新版状态：**完整流程未验证；顾问权限受限**。四个角色的模型/effort 核验结果及修正见[本轮验证记录](docs/verification/gpt6-routing-smoke.md)。只有实际调用过且有对应 session / Agent Activity 证据的角色才可标为已验证。完整方法与迁移验收场景见 [`docs/runtime-verification.md`](docs/runtime-verification.md)。
 
 ---
 
@@ -267,7 +262,7 @@ reasoning_effort = max
 
 ### 5. Preserve the user's Root habit
 
-Model Routing 应该增强你的工作习惯，而不是强迫所有人都使用同一个 Root。两种模式分别保留 Sol-root 和 Luna-root 的使用方式。
+Model Routing 应该增强你的工作习惯，而不是强迫所有人都使用同一个 Root。两种模式分别保留强主线程（Sol 或 Astra）和 Luna-root 的使用方式。
 
 ### 6. Bounded task packet first
 
@@ -312,7 +307,12 @@ Worker 不应自行不断 spawn / 升级其他 Agent。Model Routing 权限保�
 │   └── agents/
 │       ├── luna-worker.toml
 │       ├── sol-worker.toml
-│       └── sol-advisor.toml
+│       ├── sol-advisor.toml
+│       └── astra-advisor.toml
+├── scripts/
+│   └── verify_runtime.py
+├── tests/
+│   └── test_verify_runtime.py
 ├── docs/
 │   ├── diagrams/
 │   ├── mode-selection.md
@@ -341,4 +341,4 @@ Worker 不应自行不断 spawn / 升级其他 Agent。Model Routing 权限保�
 
 ## Status
 
-当前内容定位为 **research baseline / working configuration**。两种模式已经在实际 Codex multi-agent 工作流中验证了可运行性与较好的实践效率，后续仍会继续基于真实 JSONL / Agent Activity、不同模型组合和不同任务类型迭代。
+GPT-6 迁移基线（2026-10-03）：路由设计与配置已更新；四角色模型/effort 已核验，顾问有效沙箱不匹配，完整流程、质量与效率仍待验证。原 GPT-5.6 实践属于历史背景，不能证明此版本已验证。推理档位需要代表性任务评估。

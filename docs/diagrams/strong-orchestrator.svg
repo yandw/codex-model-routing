@@ -1,21 +1,51 @@
-<svg width="1440" height="820" viewBox="0 0 1440 820" xmlns="http://www.w3.org/2000/svg">
-<defs><marker id="arr" markerWidth="5" markerHeight="5" refX="4.2" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#64748b"/></marker><style>.title{font:700 30px Arial,sans-serif;fill:#0f172a}.sub{font:400 15px Arial,sans-serif;fill:#64748b}.h{font:700 18px Arial,sans-serif;fill:#0f172a}.m{font:600 15px Arial,sans-serif;fill:#2563eb}.t{font:400 14px Arial,sans-serif;fill:#475569}.box{stroke-width:1.5;rx:18;ry:18}.line{stroke:#64748b;stroke-width:1.8;fill:none;marker-end:url(#arr)}</style></defs>
-<rect width="1440" height="820" fill="#f8fafc"/>
-<text x="720" y="52" text-anchor="middle" class="title">Mode A · Strong Orchestrator</text>
-<text x="720" y="80" text-anchor="middle" class="sub">Sol / High controls planning, routing, integration, and final acceptance.</text>
-<rect x="500" y="116" width="440" height="104" fill="#eff6ff" stroke="#93c5fd" class="box"/>
-<text x="720" y="154" text-anchor="middle" class="h">Root Agent</text><text x="720" y="182" text-anchor="middle" class="m">GPT-5.6 Sol / High</text><text x="720" y="206" text-anchor="middle" class="t">Plan · Decompose · Route · Review</text>
-<path d="M720 220 L720 262" class="line"/>
-<rect x="520" y="264" width="400" height="86" fill="#ffffff" stroke="#cbd5e1" class="box"/>
-<text x="720" y="299" text-anchor="middle" class="h">Routing Decision</text><text x="720" y="326" text-anchor="middle" class="t">Complexity · Ambiguity · Risk · Verifiability</text>
-<path d="M670 350 C610 384 405 394 250 430" class="line"/><path d="M720 350 L720 430" class="line"/><path d="M770 350 C830 384 1035 394 1190 430" class="line"/>
-<rect x="60" y="430" width="380" height="176" fill="#ecfdf5" stroke="#86efac" class="box"/>
-<text x="250" y="470" text-anchor="middle" class="h">LOW</text><text x="250" y="504" text-anchor="middle" class="h">luna-worker</text><text x="250" y="534" text-anchor="middle" class="m">GPT-5.6 Luna / Max</text><text x="250" y="566" text-anchor="middle" class="t">Bounded execution</text>
-<rect x="530" y="430" width="380" height="176" fill="#fffbeb" stroke="#fcd34d" class="box"/>
-<text x="720" y="470" text-anchor="middle" class="h">MEDIUM</text><text x="720" y="504" text-anchor="middle" class="h">sol-worker</text><text x="720" y="534" text-anchor="middle" class="m">GPT-5.6 Sol / Medium</text><text x="720" y="566" text-anchor="middle" class="t">Reasoned execution</text>
-<rect x="1000" y="430" width="380" height="176" fill="#f5f3ff" stroke="#c4b5fd" class="box"/>
-<text x="1190" y="470" text-anchor="middle" class="h">HIGH</text><text x="1190" y="504" text-anchor="middle" class="h">Keep on Root</text><text x="1190" y="534" text-anchor="middle" class="m">GPT-5.6 Sol / High</text><text x="1190" y="566" text-anchor="middle" class="t">Judgment &amp; integration</text>
-<path d="M250 606 C250 662 490 678 610 694" class="line"/><path d="M720 606 L720 694" class="line"/><path d="M1190 606 C1190 662 950 678 830 694" class="line"/>
-<rect x="430" y="694" width="580" height="88" fill="#eff6ff" stroke="#93c5fd" class="box"/>
-<text x="720" y="730" text-anchor="middle" class="h">Root Integration &amp; Final Acceptance</text><text x="720" y="758" text-anchor="middle" class="t">Inspect · Integrate · Verify · Accept</text>
+<svg width="1440" height="840" viewBox="0 0 1440 840" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+<title id="title">Mode A · Strong Orchestrator</title>
+<desc id="desc">GPT-6 routing baseline. Workers return results and read-only advisors return advice to Root. Root retains scheduling and final acceptance. Runtime unverified.</desc>
+<defs><marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#94a3b8"/></marker><style>.title{font:700 30px Arial,sans-serif;fill:#0f172a}.sub{font:400 16px Arial,sans-serif;fill:#64748b}.h{font:700 18px Arial,sans-serif;fill:#0f172a}.m{font:600 16px Arial,sans-serif;fill:#2563eb}.t{font:400 16px Arial,sans-serif;fill:#475569}.box{stroke-width:1.5;rx:16;ry:16}.line{stroke:#94a3b8;stroke-width:1.7;fill:none;marker-end:url(#arr)}.advice{stroke-dasharray:6 5}</style></defs>
+<rect width="1440" height="840" fill="#f8fafc"/>
+<text x="720" y="48" text-anchor="middle" class="title">Mode A · Strong Orchestrator</text>
+<text x="720" y="79" text-anchor="middle" class="sub">One Root owns planning, routing, integration, and acceptance. Choose roles directly.</text>
+<rect x="390" y="110" width="660" height="118" fill="#eff6ff" stroke="#93c5fd" class="box"/>
+<text x="720" y="146" text-anchor="middle" class="h">Root: GPT-6.1 Sol / high</text>
+<text x="720" y="177" text-anchor="middle" class="m">Optional: GPT-6 Astra / high</text>
+<text x="720" y="206" text-anchor="middle" class="t">Record one selected Root profile.</text>
+<path d="M720 228 L720 270" class="line"/>
+<text x="720" y="304" text-anchor="middle" class="h">Execution difficulty · Decision uncertainty · Failure cost · Verifiability</text>
+<path d="M720 320 L195.0 369" class="line"/>
+<rect x="35" y="373" width="320" height="196" fill="#ffffff" stroke="#cbd5e1" class="box"/>
+<text x="195.0" y="411" text-anchor="middle" class="h">LOCAL / JUDGMENT</text>
+<text x="195.0" y="443" text-anchor="middle" class="h">Root</text>
+<text x="195.0" y="475" text-anchor="middle" class="m">Selected Root profile</text>
+<text x="195.0" y="510" text-anchor="middle" class="t">Small work when economical</text>
+<text x="195.0" y="540" text-anchor="middle" class="t">Architecture and decisions</text>
+<path d="M195.0 569 L195.0 603 L720 603 L720 633" class="line"/>
+<path d="M720 320 L545.0 369" class="line"/>
+<rect x="385" y="373" width="320" height="196" fill="#ffffff" stroke="#cbd5e1" class="box"/>
+<text x="545.0" y="411" text-anchor="middle" class="h">CLEAR EXECUTION</text>
+<text x="545.0" y="443" text-anchor="middle" class="h">luna-worker</text>
+<text x="545.0" y="475" text-anchor="middle" class="m">GPT-6 Luna / max</text>
+<text x="545.0" y="510" text-anchor="middle" class="t">Bounded, verifiable work</text>
+<text x="545.0" y="540" text-anchor="middle" class="t">Delegate when worthwhile</text>
+<path d="M545.0 569 L545.0 603 L720 603 L720 633" class="line"/>
+<path d="M720 320 L895.0 369" class="line"/>
+<rect x="735" y="373" width="320" height="196" fill="#ffffff" stroke="#cbd5e1" class="box"/>
+<text x="895.0" y="411" text-anchor="middle" class="h">COMPLEX EXECUTION</text>
+<text x="895.0" y="443" text-anchor="middle" class="h">sol-worker</text>
+<text x="895.0" y="475" text-anchor="middle" class="m">GPT-6.1 Sol / medium</text>
+<text x="895.0" y="510" text-anchor="middle" class="t">Bounded scope</text>
+<text x="895.0" y="540" text-anchor="middle" class="t">Cross-file reasoning</text>
+<path d="M895.0 569 L895.0 603 L720 603 L720 633" class="line"/>
+<path d="M720 320 L1245.0 369" class="line advice"/>
+<rect x="1085" y="373" width="320" height="196" fill="#f5f3ff" stroke="#c4b5fd" class="box"/>
+<text x="1245.0" y="411" text-anchor="middle" class="h">MAJOR JUDGMENT</text>
+<text x="1245.0" y="443" text-anchor="middle" class="h">astra-advisor</text>
+<text x="1245.0" y="475" text-anchor="middle" class="m">GPT-6 Astra / high</text>
+<text x="1245.0" y="510" text-anchor="middle" class="t">Read-only · Sol Root only</text>
+<text x="1245.0" y="540" text-anchor="middle" class="t">High-cost ambiguity</text>
+<path d="M1245.0 569 L1245.0 603 L720 603 L720 633" class="line advice"/>
+<rect x="300" y="636" width="840" height="91" fill="#eff6ff" stroke="#93c5fd" class="box"/>
+<text x="720" y="672" text-anchor="middle" class="h">Results / advice return to Root</text>
+<text x="720" y="703" text-anchor="middle" class="t">Root selects any follow-up executor, checks evidence, integrates, and accepts.</text>
+<text x="720" y="762" text-anchor="middle" class="t">Astra Root handles frontier judgment directly; no routine same-tier advisor.</text>
+<text x="720" y="798" text-anchor="middle" class="sub">Solid: execution / results · Dashed: consultation / advice · Runtime unverified</text>
 </svg>

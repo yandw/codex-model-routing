@@ -1,5 +1,15 @@
 # Research Notes
 
+> 历史研究背景：下文两种原始拓扑来自 GPT-5.6 阶段，保留原始分工描述，不作为 GPT-6 新版运行证明。
+
+## 2026-10-03 · GPT-6 迁移设计
+
+保留 Strong Orchestrator 和 Luna-first 两种模式。Strong Orchestrator 默认 GPT-6.1 Sol Root，可选 GPT-6 Astra Root；Luna-first 保留 GPT-6 Luna Root，新增 Sol 执行与 Astra 咨询。两种模式都明确区分执行难度与决策难度。
+
+新增只读 `astra-advisor`，保留 `sol-advisor` 的局部咨询价值；顾问意见返回 Root，由 Root 选择适合的执行者。Root 可直接选择模型层级，避免机械的逐级升级。小任务允许 Root 直接完成，缺少权限/工具/事实优先解决实际阻塞。
+
+这些是待验证的设计变更。四角色模型/effort 已做一次调用核验，但顾问有效权限不匹配；完整流程、质量、Token 与返工收益尚未测定。详见[验证记录](verification/gpt6-routing-smoke.md)，不能沿用旧版“已验证”的结论。模型定位参考 [OpenAI GPT-6 指南](https://developers.openai.com/api/docs/guides/latest-model)。
+
 ## 研究问题
 
 这项研究关注 Codex multi-agent 中一个比“选哪个模型”更重要的问题：

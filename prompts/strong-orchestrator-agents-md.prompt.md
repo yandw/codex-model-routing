@@ -1,264 +1,105 @@
-# Generate / Modify AGENTS.md — Strong Orchestrator Mode
+# Generate / Modify AGENTS.md — Strong Orchestrator
 
-> Language: **中文** | [English](en/strong-orchestrator-agents-md.prompt.md)
+**简体中文** | [English](en/strong-orchestrator-agents-md.prompt.md)
 
-请修改当前项目根目录的 `AGENTS.md`，建立一套严格的 **Strong Orchestrator** Agent / Model Routing Architecture。
+本提示词只更新项目根目录 `AGENTS.md`，不安装全局 Agent、不修改其他文件。先确认所需角色可用；缺少角色时报告缺失，不声称已安装。
 
-本次修改只负责 Agent / Model Routing Layer，不重新设计项目已有的 engineering workflow。
+完整读取项目根目录已有 `AGENTS.md`。只更新 routing layer，保留无冲突的工程流程、Skills、worktree、testing、review 和 Git 规则。替换冲突的路由规则，不叠加两种架构。同一模式从旧版升级时，也要完整替换旧 routing section，清理过时的角色禁用规则；保留同一个 marker 不代表升级完成。不存在 `AGENTS.md` 时创建。生成简洁、可执行的规则，不原样复制本提示词。
 
-不要修改 `CODING_ENGINEERING_REQUIREMENTS.md`、Skills、worktree、TDD、testing、debugging、review、Git workflow 或其他方法论文档，除非只是解决与 routing policy 的直接冲突。
+## 模式与 Root Profile
 
-## 1. Architecture Exclusivity
-
-在 routing section 中加入唯一标识：
+保留唯一 architecture marker：
 
 `<!-- ROUTING_ARCHITECTURE: STRONG_ORCHESTRATOR -->`
 
-完整检查现有 `AGENTS.md`。
+默认 Root profile 为 `gpt-6.1-sol / high`。用户已明确选择 Astra Root 时使用 `gpt-6-astra / high` profile。在 routing section 记录唯一选定的 Root model / reasoning，不能同时声明两个 Root。采用其他受支持的 reasoning 档位时必须由用户明确选择并记录为自定义 profile。
 
-如果发现任何与本模式冲突的 routing architecture，包括但不限于：
+Root 始终拥有需求理解、规划、拆解、架构、路由、集成、冲突处理和最终验收。提示词不能切换当前线程的实际模型；runtime 与选定 profile 不符时报告 mismatch，不自行修改全局配置，也不声称模式已正确运行。
 
-- Luna-first primary orchestration；
-- Cheap Orchestrator + Strong Advisor；
-- `LUNA_LOCAL` / `LUNA_PARALLEL` / `SOL_ADVISED`；
-- Luna 作为 Root / Primary orchestrator；
-- `sol-advisor` 作为默认自动 escalation path；
-- 其他 `ROUTING_ARCHITECTURE` marker；
+## 路由
 
-不要兼容、叠加或保留。
+| 工作 | Owner / Role |
+|---|---|
+| Root 能可靠执行并验证，且本地完成更经济的小任务或已有充分上下文的工作 | Root |
+| 清晰、bounded、可验证且值得委派的执行 | `luna-worker` |
+| 目标和范围明确，但需要跨文件推理、复杂调试或局部工程判断的执行 | `sol-worker` |
+| 需求、架构、调度、集成和最终验收 | Root |
+| Sol Root 经调查仍不能可靠解决的重大判断，或失败代价高且歧义显著的决策 | `astra-advisor`，只读咨询 |
 
-必须删除或替换冲突的 Agent Routing section。
+Astra Root profile 下，最高难度判断由 Root 处理，不例行调用另一个 Astra advisor。`sol-advisor` 属于共享角色池，在本模式不默认使用；仅用户明确要求独立咨询时调用。
 
-最终只能存在 `STRONG_ORCHESTRATOR` 一种 routing architecture。
+判断是否咨询 Astra 要给出具体决策问题和证据缺口，不能仅凭“安全”“迁移”等关键词升级。明确、已验证路径下的执行工作仍交给适合的 worker。
 
-保留所有与 routing 无冲突的工程规则。
+所有咨询返回 Root，所有 worker 的升级请求也返回 Root。保留 Strong Orchestrator 的最终责任归属。
 
-## 2. Runtime Assumption
+## 共享 Agent Pool
 
-本模式要求 Root Agent 运行：
+| 角色 | 模型 | Reasoning | Sandbox |
+|---|---|---|---|
+| `luna-worker` | `gpt-6-luna` | `max` | `workspace-write` |
+| `sol-worker` | `gpt-6.1-sol` | `medium` | `workspace-write` |
+| `sol-advisor` | `gpt-6.1-sol` | `high` | `read-only` |
+| `astra-advisor` | `gpt-6-astra` | `high` | `read-only` |
 
-`gpt-5.6-sol / high`
+## 共同执行规则
 
-Root 是唯一 orchestrator 和最终责任主体。
+### Task Packet 与角色调用
 
-如果实际 runtime 不是 Sol High，不要声称本模式已经正确运行；报告 mismatch，但不要自行修改 Codex 全局配置。
+Root 在委派前形成清晰的 Task Packet：Objective、Relevant evidence、In scope、Out of scope、Writable ownership、Constraints、Acceptance criteria、Required validation、Expected return、Escalation conditions。
 
-## 3. Available Routing Agents
+先判断工作属于执行还是决策，再根据 ambiguity、solution-path uncertainty、blast radius、failure cost、reversibility、verifiability 选择角色。Task size 不是 routing 标准。
 
-自动 routing 只使用：
+只有 Root 能可靠执行并验证，且小任务、已有充分上下文或委派成本使本地执行更经济时，才由 Root 直接完成；能力条件优先于成本和任务大小。委派应带来成本、上下文隔离或并行效率收益；只有多个真正独立的 packets 才并行。
 
-- `luna-worker` → `gpt-5.6-luna / max`
-- `sol-worker` → `gpt-5.6-sol / medium`
+调用前检查当前工具是否提供 Custom Agent 角色选择及独立上下文能力；不支持时报告 runtime 不可用，不把文件安装成功当作模式可运行。
 
-即使 `sol-advisor` 存在于全局 Agent Pool，也不得成为本模式的默认自动 routing role；除非用户显式要求，否则不要调用。
+当前支持 `agent_type` 的接口使用以下形式（按任务替换角色）：
 
-## 4. Root Responsibilities
-
-Root Sol High 始终负责：
-
-- requirement understanding / clarification；
-- constraints；
-- planning；
-- task decomposition；
-- dependency analysis；
-- architecture；
-- routing；
-- parallelization；
-- escalation；
-- worker result evaluation；
-- integration；
-- conflict resolution；
-- final review；
-- final verification；
-- acceptance / rejection；
-- 最终用户输出。
-
-## 5. Routing Model
-
-根据 cognitive complexity、ambiguity、solution-path uncertainty、blast radius、risk、reversibility、verifiability 选择执行主体：
-
-```text
-                    Root Sol High
-                         │
-                   Plan / Decompose
-                         │
-             ┌───────────┼───────────┐
-             │           │           │
-            LOW        MEDIUM       HIGH
-             │           │           │
-             ▼           ▼           ▼
-      luna-worker    sol-worker      Root
-       Luna Max      Sol Medium    Sol High
+```json
+{"agent_type":"sol-worker","fork_turns":"none","message":"明确的 Task Packet"}
 ```
 
-### LOW → luna-worker
+固定角色的 model / effort 由 TOML 决定，不同时传入 model 或 reasoning_effort 覆盖值。完整历史 fork 可能继承 Root 设置，不能用来验证这些角色的模型分工。其他客户端只使用其已确认等价的角色调用方式；没有等价入口时报告不兼容。
 
-满足大部分以下条件时显式调用 `luna-worker`：
+只传必要证据和任务边界。角色不可用时报告缺失；只有 Root 能可靠完成并验证且符合所选模式时才由 Root 接手，并明确记录。不得用模型不明的 generic/default agent 冒充已配置角色。
 
-- objective 清晰；
-- scope 清晰；
-- relevant files 基本已知；
-- solution path 基本清晰；
-- acceptance criteria 明确；
-- architecture impact 低；
-- 可以独立执行；
-- 可以客观验证。
 
-典型任务：repository exploration、targeted search、evidence collection、mechanical / repetitive edits、bounded implementation、小型 bug fix、targeted tests、lint、type-check、build、documentation、bounded review。
+### 升级与阻塞
 
-判断口诀：
+Root 可以直接选择合适层级，无需先调用 Luna、再 Sol、最后 Astra。高失败代价且歧义显著的问题，可直接咨询 Astra；普通局部问题无需例行咨询最高层模型。
 
-> Tell it what to do, and that is mostly enough.
+Worker 遇到范围扩大、事实与 packet 冲突、系统级决策或无法可靠验证时，返回具体证据、已尝试方法和阻塞给 Root。Root 决定补充调查、修改 packet、换 worker 或咨询 advisor。重复失败是重新诊断的信号，不自动触发模型升级。
 
-### MEDIUM → sol-worker
+工具不可用、权限不足或缺少用户事实时，先解决对应阻塞；更强模型不能替代缺失的权限、工具或事实。遵守当前运行环境的权限与指令优先级。
 
-满足以下特征时显式调用 `sol-worker`：
+Worker 和 advisor 不自行创建或升级其他 agent；路由权集中在 Root。
 
-- objective / scope 已 bounded；
-- 但 solution path 不明显；
-- 需要跨多个相关文件 / 模块理解；
-- root cause 需要较强推理；
-- 需要理解 existing abstractions / design intent；
-- 存在多个局部实现方案；
-- integration complexity 中等；
-- 仍属于可独立委派的 execution work。
+### Advisor Contract
 
-判断口诀：
+咨询包含：一个明确 Decision question、Relevant evidence、Constraints / non-negotiables、Options considered、Expected return。
 
-> Tell it what to do, but it still needs to reason carefully about how to do it.
+Advisor 使用只读检查，返回 recommendation、decisive evidence、alternatives / trade-offs、risks、implementation constraints、acceptance criteria、remaining uncertainty。证据不足时指出最小补充检查；不假装已有结论。
 
-### HIGH → Root Sol High
+顾问意见返回 Root，由 Root 按实现难度选择自己或 worker 执行。Advisor 不接管调度、实现、集成或最终验收；再次咨询必须有新的证据或明确未解决的决策问题。
 
-以下任务保留给 Root：
+### 并行与验收
 
-- requirement ambiguity；
-- architecture / system design；
-- high-impact strategy；
-- public API / schema decisions；
-- security-sensitive judgment；
-- destructive / irreversible decisions；
-- unknown blast radius；
-- conflicting requirements；
-- broad refactor decisions；
-- task decomposition；
-- worker conflict resolution；
-- integration；
-- final review / acceptance。
+并行 packet 必须独立、不依赖对方未完成的输出、写入范围不重叠、每个文件仅一个 active writer，并能分别验证。Root 可混合调度不同 worker，但始终负责集成。
 
-判断口诀：
+Worker completion ≠ task completion。Root 检查实际 diff、验证结果和证据，解决冲突，完成适当的集成验证，作出 Accept / Reject / Rework。Advisor 的建议不能代替验证。阻塞或未解决的高风险判断必须如实报告。
 
-> If deciding what should be done, why, or what the system-level consequences are is itself the hard problem, keep it on Root.
+### Effort 与有效权限
 
-## 6. Task Packet
+本版使用固定角色档位，不执行按任务动态 effort 路由。用户要求调整子角色档位时，应修改该角色的 TOML，并同步本项目映射和验证预期，重新加载后检查实际 effort；提示词中的“多想一点”不能代替配置，调用参数也不能保证覆盖 TOML。只选择当前客户端与模型均支持的值。`ultra` 等可能附带自动委派的档位不属于本版基线，验证其与 Root 集中调度兼容后才能另行采用。
 
-Root 在委派前先形成 bounded Task Packet，尽可能包含：
+Advisor 的“不写入”行为约束与运行时强制只读是两个检查项。父会话的实时权限设置可能覆盖角色 TOML 的 sandbox_mode。首次使用或权限变更后，先做不使用工具、不携带敏感内容的元数据握手；Root 核对关联子会话的 model、effort、有效 sandbox/approval 元数据。有效文件沙箱不是 read-only，或无法确认时，不继续派发实质咨询，报告权限 mismatch / 未验证。可在支持独立只读权限的环境或独立只读会话中重新验证；不自动修改全局权限，不把独立会话测试当作已验证 Custom Agent 路由。Shell 沙箱也不能证明所有外部连接器都只读；顾问仍只使用只读操作。
 
-- Objective
-- Relevant context
-- In scope
-- Out of scope
-- Writable files
-- Constraints
-- Acceptance criteria
-- Required validation
-- Expected return
-- Escalation conditions
+### Runtime Truth
 
-Task size 不是 routing 标准。
+TOML 和 AGENTS.md 只表达意图；实际模型与推理档位以 runtime/session/Agent Activity 为准。检查 Root 所选 profile 和实际调用过的角色；未调用的角色仍为“未验证 runtime”。无法读取运行证据时也明确标注未验证，不得以静态配置推断成功。
 
-## 7. Explicit Selection
+以下档位是迁移基线，不是已证实的最优组合。评估时分别记录模型、reasoning effort、任务质量、耗时、Token 和返工。子 agent 的 reasoning 必须由角色配置或受支持的显式参数指定，不依赖隐式继承。
 
-当任务符合 `luna-worker` profile，必须优先显式选择 `luna-worker`。
+## 验收与报告
 
-当任务符合 `sol-worker` profile，必须优先显式选择 `sol-worker`。
-
-不要 spawn generic/default Root copy 来替代已有 Custom Agent。
-
-## 8. Escalation
-
-Worker 不拥有 Model Routing 权限。
-
-禁止 worker 自行：
-
-`luna-worker → sol-worker`
-
-正确流程：
-
-```text
-luna-worker
-     ↓
-unexpected complexity
-     ↓
-return evidence to Root
-     ↓
-Root reassesses
-     ├── refine packet → luna-worker
-     ├── bounded reasoning-heavy → sol-worker
-     └── architecture / high judgment → Root
-```
-
-`sol-worker` 遇到 architecture-level decision、major scope expansion、security/data integrity、public API/schema 或 requirement ambiguity，也必须返回 Root。
-
-默认禁止 recursive delegation。
-
-## 9. Parallelism
-
-只在以下条件下并行：
-
-- 至少两个真正独立的 packets；
-- 不依赖彼此 unfinished output；
-- writable files disjoint；
-- one writable owner per file；
-- each packet independently verifiable；
-- parallel benefit > coordination overhead。
-
-允许混合多个 `luna-worker` / `sol-worker`，但 Root 始终拥有 scheduling 和 integration 权限。
-
-## 10. Acceptance
-
-Worker completion ≠ task completion。
-
-Root 必须检查 actual changes、evidence、validation，解决冲突，并负责 integration-level verification 和最终 Accept / Reject / Rework。
-
-不要只根据 worker summary 验收。
-
-## 11. Runtime Truth
-
-TOML / AGENTS.md 不能证明实际模型运行。
-
-只有 runtime/session/Agent Activity 才是最终事实来源。
-
-预期：
-
-- `luna-worker` → `gpt-5.6-luna / max`
-- `sol-worker` → `gpt-5.6-sol / medium`
-
-如果实际不匹配，报告真实 runtime，不得假装成功。
-
-## 12. Modification Rules
-
-请：
-
-1. 完整读取当前 `AGENTS.md`；
-2. 定位 delegation / routing section；
-3. 删除与 Strong Orchestrator 冲突的 routing architecture；
-4. 生成一个简洁、高密度、可执行的 routing section；
-5. 加入唯一 architecture marker；
-6. 保留非 routing 的工程规则；
-7. 使用最小必要 diff；
-8. 不把本提示词全文原样复制进 `AGENTS.md`；
-9. 不修改其他文件。
-
-最终确认：
-
-- Root = Sol High；
-- LOW → luna-worker；
-- MEDIUM → sol-worker；
-- HIGH → Root；
-- sol-advisor 不在默认 routing path；
-- 没有 Luna-first routing；
-- 没有 generic/default worker 优先规则；
-- 没有 recursive delegation；
-- 只有一个 routing architecture marker。
-
-最后报告：修改位置、删除的冲突规则、最终 routing graph、diff、architecture exclusivity，以及实际能够验证到的 runtime model 信息。
+确认只有一个 architecture marker、一个选定 Root profile，模型/档位映射与有效角色权限正确（不能只检查 TOML 声明），路由和验收归 Root，worker/advisor 无递归委派。检查所有规则符合所选模式且旧角色禁用条款已清理。报告修改位置、删除的冲突规则、最终 routing graph、diff，以及实际 runtime 证据或缺失情况。区分静态配置检查与实际运行时验证。

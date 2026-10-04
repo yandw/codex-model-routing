@@ -26,44 +26,47 @@ This project therefore explores a finer-grained **Model Routing / Model Division
 
 Another important principle is: **preserve the user's existing Root-model habit.**
 
-Some users prefer Sol High as the primary thread and want it to retain planning, architecture, and final acceptance. Others prefer Luna Max for daily work and want to call Sol High only at difficult judgment points.
+Some users prefer Sol High as the primary thread and want it to retain planning, architecture, and final acceptance. Others prefer Luna Max for daily work and want to consult Sol or Astra only at difficult judgment points.
 
 So this repository does not prescribe one universally correct Root model. Instead it asks:
 
 > **While preserving the user's Root-model habit, how can `AGENTS.md` orchestration policy and Custom Agents create a more efficient division of labor between models?**
 
-## Two currently validated modes
+## Two modes · GPT-6 migration baseline
 
-The repository currently contains two modes that have been tested in real workflows. They are not competitors and not an A/B test. They represent different working habits while validating the same core idea: **a good model division of labor can improve overall engineering efficiency and token utilization.**
+Preserve two Root preferences. One invocation check matched all four role model/effort pairs. Advisor effective permissions still mismatch, and full routing workflows remain unverified. GPT-5.6 practice results do not replace current evidence.
 
 ### Mode A — Strong Orchestrator
 
 ![Strong Orchestrator](docs/diagrams/strong-orchestrator.svg)
 
-Keep **Sol High as Root**:
+Default to **GPT-6.1 Sol / high Root**, with an explicitly selected **GPT-6 Astra / high Root** profile also available:
 
-- LOW: low-ambiguity, verifiable execution → `luna-worker` / Luna Max;
-- MEDIUM: reasoning-heavy but still bounded execution → `sol-worker` / Sol Medium;
-- HIGH: architecture, ambiguity, high-risk judgment, integration, final acceptance → Root Sol High.
+- Work Root can reliably execute and validate, with a local cost/context advantage → Root;
+- clear, bounded, verifiable execution worth delegating → `luna-worker` / GPT-6 Luna / max;
+- bounded execution requiring cross-file reasoning or difficult debugging → `sol-worker` / GPT-6.1 Sol / medium;
+- requirements, architecture, routing, integration, and final acceptance → Root;
+- major judgment Sol Root cannot reliably resolve after inspection, or high failure cost combined with substantial ambiguity → `astra-advisor` / GPT-6 Astra / high, read-only.
 
-Best for users who already prefer Sol High as Root but want to move large amounts of execution-token usage to better-suited models.
+Astra Root handles the hardest judgment directly rather than routinely calling another Astra advisor. `sol-advisor` is not used by default in this mode; it is available for independent consultation explicitly requested by the user.
 
 ### Mode B — Cheap Orchestrator + Strong Advisor
 
 ![Cheap Orchestrator + Strong Advisor](docs/diagrams/cheap-orchestrator-strong-advisor.svg)
 
-Keep **Luna Max as Root**:
+Keep **GPT-6 Luna / max as Root**:
 
-- ordinary daily work → Primary Luna;
-- genuinely independent parallel tasks → `luna-worker` / Luna Max;
-- high-value, high-risk, high-ambiguity judgment → `sol-advisor` / Sol High, read-only;
-- after Sol returns a decision, implementation and validation return to Luna.
+- `LUNA_LOCAL`: Luna performs and validates daily work;
+- `LUNA_PARALLEL`: clear, independent work worth parallelizing → `luna-worker`;
+- `SOL_EXECUTION`: bounded implementation that exceeds Luna's reliable capability → `sol-worker`;
+- `SOL_ADVISED`: local design, compatibility trade-offs, or root-cause analysis requiring stronger judgment → `sol-advisor`, read-only;
+- `ASTRA_ADVISED`: high failure cost with substantial ambiguity, major cross-system trade-offs, or material judgment unresolved after Sol advice → `astra-advisor`, read-only.
 
-Best for users who already prefer Luna Max as Root and want to buy stronger reasoning only at critical judgment points.
+Advice returns to Luna, which selects local or suitable worker execution. Luna retains scheduling, integration, and final acceptance. A Sol worker can execute a single independent packet without prior consultation or a parallel batch.
 
-In current Codex multi-agent practice, both modes have demonstrated that the routing architecture can be implemented, Custom Agents can hold explicit model roles, Root habits can be preserved, worker/advisor boundaries can be controlled, and runtime/session JSONL can be used to verify actual model usage.
+Both modes let Root select the appropriate tier directly, without calling every model in sequence. Address missing permissions, tools, or user facts as blockers; model escalation does not supply them.
 
-“Validated” here means practical runnability and observed workflow effectiveness. It **does not claim these topologies are theoretically globally optimal**. The repository will continue to test other tasks, model combinations, and runtime evidence.
+Configure model and reasoning separately. These efforts are starting points, not proven optima. Compare task quality, elapsed time, tokens, and rework on representative tasks. Model positioning follows the [GPT-6 guide](https://developers.openai.com/api/docs/guides/latest-model), checked on 2026-10-03; the routing design is this project's proposal.
 
 ---
 
@@ -75,7 +78,7 @@ Choose one of the following two setup paths.
 
 Open the repository you actually want to work on, then give Codex the matching **Setup Prompt URL** for your preferred Root-model habit.
 
-### Strong Orchestrator — Sol High Root
+### Strong Orchestrator — Sol High / optional Astra High Root
 
 Paste this into Codex:
 
@@ -106,7 +109,7 @@ The Setup Prompt performs the whole flow:
 ```text
 Read the canonical Setup Prompt
         ↓
-install / update the three Custom Agents under ~/.codex/agents/
+install / update the four Custom Agents under ~/.codex/agents/
         ↓
 read the current project's existing AGENTS.md
         ↓
@@ -125,7 +128,7 @@ validate installation, routing architecture, and any runtime evidence that is av
 
 The Manual path has two steps: **install the Agents yourself → enable one routing mode in your own project.**
 
-### 1. Install the three Agents manually
+### 1. Install the four Agents manually
 
 Clone this repository and run:
 
@@ -142,7 +145,8 @@ The final layout should be:
 ~/.codex/agents/
 ├── luna-worker.toml
 ├── sol-worker.toml
-└── sol-advisor.toml
+├── sol-advisor.toml
+└── astra-advisor.toml
 ```
 
 Do not install them as:
@@ -163,24 +167,39 @@ Then give Codex one **AGENTS-only Prompt**. It changes only the current project'
 
 | Root habit | Mode | 中文 | English Prompt |
 |---|---|---|---|
-| Sol High as primary | Strong Orchestrator | [`中文`](prompts/strong-orchestrator-agents-md.prompt.md) | [`AGENTS.md Prompt`](prompts/en/strong-orchestrator-agents-md.prompt.md) |
+| Sol High / Astra High as primary | Strong Orchestrator | [`中文`](prompts/strong-orchestrator-agents-md.prompt.md) | [`AGENTS.md Prompt`](prompts/en/strong-orchestrator-agents-md.prompt.md) |
 | Luna Max as primary | Cheap Orchestrator + Strong Advisor | [`中文`](prompts/luna-first-advisor-agents-md.prompt.md) | [`AGENTS.md Prompt`](prompts/en/luna-first-advisor-agents-md.prompt.md) |
 
 If Codex can access public URLs, you can also ask it to read the corresponding Raw AGENTS-only Prompt directly. If not, open the file and paste its contents into Codex.
 
 ---
 
-# What do the three Agents actually do?
+# What do the four Agents do?
 
-`.codex/agents/` is not a directory of examples. It defines three concrete execution roles. `AGENTS.md` decides **when** to call each role; the TOML file decides **which model it uses, what permissions it has, and how it behaves once called**.
+`AGENTS.md` decides when to call a role; TOML defines its model, reasoning effort, permissions, and behavior.
 
-| Agent | Model / Reasoning | Permission | Main job | Position in the two modes |
-|---|---|---|---|---|
-| [`luna-worker`](.codex/agents/luna-worker.toml) | Luna / Max | workspace-write | Clear, bounded, verifiable execution: search, mechanical edits, small implementations, tests, docs | LOW in Mode A; parallel worker in Mode B |
-| [`sol-worker`](.codex/agents/sol-worker.toml) | Sol / Medium | workspace-write | Objective is known, but implementation needs cross-file understanding, difficult debugging, root-cause analysis, or localized engineering judgment | MEDIUM in Mode A; not used by default in Mode B |
-| [`sol-advisor`](.codex/agents/sol-advisor.toml) | Sol / High | **read-only** | Architecture, security, compatibility, data-integrity, difficult root-cause, and other high-value judgment; returns decisions/constraints instead of routine coding | SOL_ADVISED in Mode B; not used by default in Mode A |
+| Agent | Model / reasoning | Permissions | Responsibility and mode |
+|---|---|---|---|
+| [`luna-worker`](.codex/agents/luna-worker.toml) | `gpt-6-luna / max` | workspace-write | Clear, verifiable execution in both modes |
+| [`sol-worker`](.codex/agents/sol-worker.toml) | `gpt-6.1-sol / medium` | workspace-write | Bounded execution requiring substantial reasoning in both modes |
+| [`sol-advisor`](.codex/agents/sol-advisor.toml) | `gpt-6.1-sol / high` | **read-only** | Local design, compatibility trade-offs, and difficult root-cause judgment; on demand in Mode B, only on explicit user request in Mode A |
+| [`astra-advisor`](.codex/agents/astra-advisor.toml) | `gpt-6-astra / high` | **read-only** | High-cost ambiguous decisions and major cross-system trade-offs; on demand for Sol Root in Mode A and for Mode B |
 
-Why install all three? Together they form a shared **Agent Capability Pool**. Different projects can select different subsets through `AGENTS.md`, so you do not need to repeatedly install and remove agents when switching routing styles.
+These roles form a shared Agent Pool; a task need not use every role. Workers and advisors return escalation questions to Root rather than spawning agents. Advice does not replace validation.
+
+## Effort and permission compatibility
+
+Role efforts are fixed baselines in TOML. To change one, update the TOML plus project mapping and verification expectations, reload, and check actual metadata. The custom agent file takes precedence over spawn model/effort parameters; this version does not promise per-task dynamic effort. Use `agent_type` with `fork_turns="none"` on the current interface, without conflicting model/effort overrides. A client lacking role selection cannot verify this architecture merely by installing files.
+
+Advisor `read-only` in the tables is the required sandbox, not a guarantee that every host enforces it. Live parent permissions can override role defaults. Before substantive consultation, use a no-tool handshake and verify effective child sandbox/approval metadata; mismatches or missing evidence block that consultation. Use an independently read-only environment/session for further verification, without changing global permissions automatically. Connector permissions remain separate from the shell sandbox. See [official subagent configuration](https://learn.chatgpt.com/docs/agent-configuration/subagents) and the [runtime guide](docs/runtime-verification.md).
+
+## Upgrading an existing installation
+
+Re-run the setup prompt for your selected mode. Update the four TOML files and replace the old project routing section together; changing model strings alone leaves obsolete routing rules active. Back up existing agent files before manual replacement.
+
+Mode A adds an optional Astra Root profile and Astra consultation for Sol Root. Mode B removes the old `sol-worker` exclusion and routes post-consultation implementation to a suitable executor. Keep one architecture marker and one selected Root profile. Verify current role registration and runtime separately.
+
+Raw setup URLs serve the version published on GitHub `main`. Local edits do not update those URLs; for an unpublished checkout, use the checked-out agent files and local AGENTS-only prompt.
 
 ## What does each configuration layer control?
 
@@ -202,44 +221,22 @@ This is why installing TOML alone is not enough, and why writing only `AGENTS.md
 
 ---
 
-# How do you verify that Model Routing really worked?
+# How do you verify that Model Routing worked?
 
-This section is an **installation acceptance check**, not a theoretical note.
+Check repository configuration, roles registered in the current session, and actual runtime evidence separately. Updating TOML on disk proves neither that a session reloaded it nor that an agent ran with the expected model.
 
-`AGENTS.md` and TOML only describe the routing you intend. They do not prove that Codex actually used the expected model at runtime. The source of truth is Codex session / Agent Activity / JSONL runtime metadata.
-
-For example, if you configure:
-
-```text
-luna-worker → gpt-5.6-luna / max
-```
-
-then you only know the routing actually worked when a real sub-agent session contains evidence such as:
-
-```text
-thread_source = subagent
-agent_role = luna-worker
-model = gpt-5.6-luna
-reasoning_effort = max
-```
-
-Expected mapping:
-
-| Role | Expected runtime model | Reasoning |
+| Role | Expected model | Reasoning |
 |---|---|---|
-| `luna-worker` | `gpt-5.6-luna` | `max` |
-| `sol-worker` | `gpt-5.6-sol` | `medium` |
-| `sol-advisor` | `gpt-5.6-sol` | `high` |
+| `luna-worker` | `gpt-6-luna` | `max` |
+| `sol-worker` | `gpt-6.1-sol` | `medium` |
+| `sol-advisor` | `gpt-6.1-sol` | `high` |
+| `astra-advisor` | `gpt-6-astra` | `high` |
 
-Check runtime especially after:
+Also match Root to the selected profile: Mode A defaults to `gpt-6.1-sol / high` with optional `gpt-6-astra / high`; Mode B defaults to `gpt-6-luna / max`. Explicitly selected alternative supported efforts must be recorded as custom profiles.
 
-- first installing these Agents;
-- changing project routing rules;
-- a Codex App / multi-agent update;
-- changing model names or reasoning configuration;
-- suspecting a worker did not use the intended model.
+If the current session lacks roles or exposes old mappings after installation, reload/start a session as required by the client, then verify registration and actual runtime. A prompt cannot switch the current thread's model. Report mismatches without changing global configuration or silently substituting a model.
 
-See [`docs/runtime-verification.md`](docs/runtime-verification.md) for JSONL inspection examples.
+New baseline status: **full workflow runtime unverified; advisor permissions limited**. See the [review and smoke results](docs/verification/gpt6-routing-smoke.md) for the four-role model/effort checks and fixes. Mark only roles actually invoked with matching session / Agent Activity evidence as verified. See [`docs/runtime-verification.md`](docs/runtime-verification.md) for verification and migration acceptance scenarios.
 
 ---
 
@@ -265,7 +262,7 @@ The main signals are ambiguity, solution-path uncertainty, blast radius, reversi
 
 ### 5. Preserve the user's Root habit
 
-Model Routing should strengthen existing working habits rather than force everyone onto the same Root model. The two modes deliberately preserve both Sol-root and Luna-root styles.
+Model Routing should strengthen existing working habits rather than force everyone onto the same Root model. The two modes preserve strong-root (Sol or Astra) and Luna-root styles.
 
 ### 6. Bounded task packet first
 
@@ -310,7 +307,12 @@ References:
 │   └── agents/
 │       ├── luna-worker.toml
 │       ├── sol-worker.toml
-│       └── sol-advisor.toml
+│       ├── sol-advisor.toml
+│       └── astra-advisor.toml
+├── scripts/
+│   └── verify_runtime.py
+├── tests/
+│   └── test_verify_runtime.py
 ├── docs/
 │   ├── diagrams/
 │   ├── mode-selection.md
@@ -339,4 +341,4 @@ If you find a more efficient routing approach, contributions backed by runtime e
 
 ## Status
 
-This repository is a **research baseline / working configuration**. Both modes have demonstrated practical runnability and good workflow efficiency in real Codex multi-agent use, and will continue to evolve based on actual JSONL / Agent Activity, different model combinations, and different task types.
+GPT-6 migration baseline (2026-10-03): routing design and configuration updated; all four role model/effort pairs were checked, but advisor effective sandbox mismatches leave full workflows, quality, and efficiency unverified. Earlier GPT-5.6 practice is historical context, not validation of this revision. Reasoning settings require representative-task evaluation.

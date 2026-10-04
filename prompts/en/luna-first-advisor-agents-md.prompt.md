@@ -1,248 +1,107 @@
-# Generate / Modify AGENTS.md — Luna-first Advisor Mode
+# Generate / Modify AGENTS.md — Luna-first / Cheap Orchestrator + Strong Advisor
 
-> Language: [中文](../luna-first-advisor-agents-md.prompt.md) | **English**
+**English** | [简体中文](../luna-first-advisor-agents-md.prompt.md)
 
-Modify the current project root `AGENTS.md` to establish a strict **Luna-first / Cheap Orchestrator + Strong Advisor** Agent / Model Routing Architecture.
+This prompt updates only the project-root `AGENTS.md`. It does not install global agents or modify other files. Confirm the required roles are available first; report missing roles instead of claiming installation.
 
-This change is limited to the Agent / Model Routing Layer. Do not redesign the project's existing engineering workflow.
+Read the existing project-root `AGENTS.md` completely. Update only its routing layer, preserving unrelated engineering workflow, skills, worktree, testing, review, and Git rules. Replace conflicting routing rules instead of stacking architectures. When migrating an older version of the same mode, replace the complete old routing section, including obsolete role exclusions; retaining the same marker is not sufficient. Create `AGENTS.md` if absent. Produce a concise executable policy rather than copying this prompt verbatim.
 
-Do not modify `CODING_ENGINEERING_REQUIREMENTS.md`, Skills, worktree rules, TDD, testing, debugging, review, Git workflow, or other methodology documents unless a direct conflict with the routing policy must be resolved.
+## Mode and Root profile
 
-## 1. Architecture Exclusivity
-
-Add this unique marker to the routing section:
+Keep exactly one architecture marker:
 
 `<!-- ROUTING_ARCHITECTURE: LUNA_FIRST_STRONG_ADVISOR -->`
 
-Read the entire existing `AGENTS.md` first.
+The default Root profile is `gpt-6-luna / max`. Primary Luna owns daily execution, scheduling, integration, and final acceptance. Record a different supported reasoning effort as a custom profile only when explicitly selected by the user.
 
-If any conflicting routing architecture is present, including but not limited to:
+A prompt cannot switch the current thread's actual model. Report a runtime/profile mismatch without changing global configuration or claiming the mode is operating correctly.
 
-- Sol High Root orchestration;
-- Strong Orchestrator;
-- LOW / MEDIUM / HIGH → Luna / Sol Medium / Root routing;
-- automatic `sol-worker` routing;
-- Sol acting as a permanent supervisor / final acceptance owner;
-- any other `ROUTING_ARCHITECTURE` marker;
+## Five work paths
 
-then do not merge, stack, or preserve the conflicting architecture.
+| Path | Condition and role |
+|---|---|
+| `LUNA_LOCAL` | Clear requirements, reliable Luna execution, and a local-work cost advantage: Primary Luna executes and validates |
+| `LUNA_PARALLEL` | Clear independent packets with disjoint writable scopes and a concrete parallelism benefit → `luna-worker` |
+| `SOL_EXECUTION` | Objective, scope, and acceptance are bounded, but cross-file reasoning, difficult debugging, or local implementation exceeds Luna's reliable capability → `sol-worker` |
+| `SOL_ADVISED` | Local design, compatibility trade-offs, or root-cause analysis requiring stronger judgment → `sol-advisor`, read-only |
+| `ASTRA_ADVISED` | High failure cost with substantial ambiguity, major cross-system trade-offs, or material judgment still unresolved after Sol advice → `astra-advisor`, read-only |
 
-Delete or replace the conflicting Agent Routing section.
+Route complex execution separately from difficult decisions. A `sol-worker` may execute a single independent packet; neither prior advisor consultation nor multiple parallel tasks are required.
 
-The final `AGENTS.md` must contain only one routing architecture: `LUNA_FIRST_STRONG_ADVISOR`.
+Root may consult Astra directly without first consulting Sol. Sol and Astra are on-demand advisors, not permanent supervisors. File count, task duration, or domain keywords alone do not trigger escalation.
 
-Preserve all engineering rules that do not conflict with routing.
+After advice returns decisions, constraints, and acceptance criteria, scheduling returns to Primary Luna. Luna chooses local execution, `luna-worker`, or `sol-worker` according to implementation difficulty. Do not force every implementation back onto the Luna model.
 
-## 2. Runtime Assumption
+Luna retains integration and final acceptance based on actual validation evidence. If reliable acceptance is unavailable, obtain more validation or ask a specific advisor question. Report unresolved risks rather than treating advice as successful validation.
 
-This mode requires the Primary / Root Agent to run:
+## Shared Agent Pool
 
-`gpt-5.6-luna / max`
+| Role | Model | Reasoning | Sandbox |
+|---|---|---|---|
+| `luna-worker` | `gpt-6-luna` | `max` | `workspace-write` |
+| `sol-worker` | `gpt-6.1-sol` | `medium` | `workspace-write` |
+| `sol-advisor` | `gpt-6.1-sol` | `high` | `read-only` |
+| `astra-advisor` | `gpt-6-astra` | `high` | `read-only` |
 
-Primary Luna is the daily primary model, normal orchestrator, normal executor, worker scheduler, integration owner, and normal final acceptance owner.
+## Shared execution rules
 
-If the actual runtime is not Luna Max, do not claim that this mode is operating correctly. Report the mismatch, but do not automatically modify global Codex configuration.
+### Task packets and role selection
 
-## 3. Available Routing Agents
+Before delegation, Root defines a clear task packet: Objective, Relevant evidence, In scope, Out of scope, Writable ownership, Constraints, Acceptance criteria, Required validation, Expected return, and Escalation conditions.
 
-Automatic routing may use only:
+Distinguish execution from judgment first. Select the role using ambiguity, solution-path uncertainty, blast radius, failure cost, reversibility, and verifiability. Task size is not a routing criterion.
 
-- `luna-worker` → `gpt-5.6-luna / max`
-- `sol-advisor` → `gpt-5.6-sol / high`, read-only
+Root handles such work locally only when it can reliably execute and validate it, and small size, sufficient existing context, or delegation overhead makes local work more economical. Capability takes precedence over cost or size. Delegate for a concrete cost, context-isolation, or parallelism benefit. Parallelize only genuinely independent packets.
 
-Even if `sol-worker` exists in the global Agent Pool, it must not become an automatic routing role in this mode. Do not call it unless the user explicitly requests it.
+Before calling, check that the current tool supports Custom Agent role selection and isolated context. Otherwise report runtime unavailable; installed files do not prove the mode can run.
 
-## 4. Core Philosophy
+For the current interface exposing `agent_type`, use this form with the selected role:
 
-Sol is an on-demand advisor, not the default supervisor.
-
-Do not escalate to Sol merely because the task is long, touches many files, involves substantial work, or requires many tests. Difficulty ≠ Size.
-
-Escalate to Sol primarily based on uncertainty, ambiguity, blast radius, reversibility, plausible failure cost, reasoning difficulty, and security / integrity impact.
-
-## 5. Three Routing Modes
-
-### LUNA_LOCAL
-
-If requirements are clear, risk is low to moderate, a single thread is more economical, and delegation overhead is larger than its benefit, Primary Luna should complete and validate the work directly.
-
-Do not spawn a worker merely to “use agents.”
-
-### LUNA_PARALLEL
-
-If at least two genuinely independent, disjoint, separately verifiable task packets exist and parallelism creates real benefit, delegate to `luna-worker`.
-
-Each packet must have a clear objective, scope, writable ownership, acceptance criteria, and validation requirements. Each writable file may have only one active owner.
-
-Primary Luna owns final integration and normal acceptance.
-
-### SOL_ADVISED
-
-Call `sol-advisor` only for genuinely high-value judgment.
-
-Typical escalation conditions include:
-
-- requirements remain materially ambiguous or contradictory after targeted inspection;
-- architecture decisions;
-- security / privacy;
-- authentication / authorization;
-- cryptography / payments;
-- destructive migration;
-- data integrity;
-- distributed consistency;
-- breaking compatibility;
-- cross-system interface decisions;
-- multiple plausible root causes remain after the cheapest discriminating checks;
-- two evidence-based implementation attempts have failed;
-- final validation reveals an unresolved risk with high plausible failure cost.
-
-Do not let Sol Advisor complete the whole feature, review everything indiscriminately, or take over routine implementation.
-
-## 6. Sol Advisor Contract
-
-Primary Luna should collect the cheapest useful evidence before consulting Sol.
-
-The request to `sol-advisor` should include:
-
-- one Decision question;
-- Relevant evidence;
-- Constraints / non-negotiables;
-- Options considered, if any;
-- Expected return.
-
-Expected return:
-
-- recommendation;
-- rationale / decisive evidence;
-- rejected alternatives;
-- risks;
-- implementation constraints;
-- acceptance criteria;
-- remaining uncertainty.
-
-If evidence is insufficient, Sol should identify only the cheapest additional check needed.
-
-## 7. Return Execution to Luna
-
-After Sol Advisor returns a decision, routine execution must return to Luna:
-
-```text
-Luna collects evidence
-        ↓
-sol-advisor
-        ↓
-decision / constraints / acceptance criteria
-        ↓
-Luna or luna-worker implements
-        ↓
-validation
-        ↓
-Primary Luna integrates / accepts
+```json
+{"agent_type":"sol-worker","fork_turns":"none","message":"Explicit task packet"}
 ```
 
-Sol does not perform routine coding, tests, integration, or normal final acceptance.
+The fixed role's TOML controls model / effort; do not also pass model or reasoning_effort overrides. Full-history forks may inherit Root settings and cannot verify these role mappings. On other clients, use only a confirmed equivalent role invocation; report incompatibility if none exists.
 
-A second targeted Sol consultation is allowed only when the final artifact still contains unresolved high-risk judgment.
+Pass only necessary evidence and boundaries. Report missing roles. Root may take over only when capable of reliable execution and validation and consistent with the mode, and must record the choice. Do not disguise a generic/default agent with an unknown model as the configured role.
 
-## 8. Luna Parallelism
 
-Use `luna-worker` actively, but only when genuinely independent work benefits from parallelism.
+### Escalation and blockers
 
-Required conditions:
+Root selects the appropriate tier directly; Luna, Sol, and Astra are not a mandatory sequence. High-cost failures combined with substantial ambiguity may justify consulting Astra directly. Routine local questions do not require the highest-tier model.
 
-- no dependency on another worker's unfinished output;
-- explicit scope;
-- explicit acceptance criteria;
-- disjoint writable files;
-- one writable owner per file;
-- Primary Luna can integrate and validate the results.
+When scope expands, evidence contradicts the packet, a system-level decision is required, or reliable validation is unavailable, workers return evidence, attempts, and the specific blocker to Root. Root chooses further inspection, a revised packet, another worker, or an advisor. Repeated failure triggers reassessment, not automatic model escalation.
 
-Do not spawn agents for trivial work.
+Unavailable tools, insufficient permissions, and missing user facts must be addressed as those blockers. A stronger model cannot supply missing permissions, tools, or facts. Respect the current environment's permissions and instruction hierarchy.
 
-## 9. Task Packet
+Workers and advisors do not spawn or escalate to other agents. Root owns routing.
 
-Every delegated packet should include as much of the following as practical:
+### Advisor contract
 
-- Objective
-- Relevant context
-- In scope
-- Out of scope
-- Writable ownership
-- Constraints
-- Acceptance criteria
-- Required validation
-- Expected return
-- Escalation conditions
+A consultation contains one Decision question, Relevant evidence, Constraints / non-negotiables, Options considered, and Expected return.
 
-A worker must stop and return when it encounters material ambiguity, repository facts that contradict the packet, unexpected interface/dependency changes, security/data-integrity/compatibility impact, unavailable validation, material scope expansion, or repeated evidence-based failure.
+An advisor uses read-only inspection and returns a recommendation, decisive evidence, alternatives / trade-offs, risks, implementation constraints, acceptance criteria, and remaining uncertainty. If evidence is insufficient, identify the smallest additional check rather than inventing a conclusion.
 
-## 10. Acceptance
+Advice returns to Root, which chooses local or worker execution according to implementation difficulty. Advisors do not own scheduling, implementation, integration, or final acceptance. Follow-up consultations require new evidence or a specific unresolved decision.
 
-Primary Luna owns normal integration, review, verification, and final acceptance.
+### Parallelism and acceptance
 
-It must inspect actual diffs, actual validation results, and worker evidence. Do not accept a result based only on a summary.
+Parallel packets must be independent, not depend on each other's unfinished outputs, have disjoint writable scopes and one active writer per file, and be separately verifiable. Root may mix worker roles and always owns integration.
 
-Sol Advisor is responsible only for the specific difficult decision it was asked to resolve.
+Worker completion is not task completion. Root inspects actual diffs, validation results, and evidence; resolves conflicts; performs appropriate integration checks; and decides Accept / Reject / Rework. Advice is not validation. Report blockers and unresolved high-risk judgment honestly.
 
-## 11. Explicitly Forbidden Routing
+### Effort and effective permissions
 
-This mode must not automatically form any of the following:
+This version uses fixed role efforts, not dynamic per-task effort routing. To honor an explicit request to change a child role's effort, update its TOML and the project's mapping and verification expectations, reload, and verify the actual effort. Asking the model to think harder is not configuration, and spawn parameters do not necessarily override TOML. Use only efforts supported by both the current client and model. Levels such as `ultra` that may include automatic delegation are outside this baseline until their compatibility with Root-owned routing is verified.
 
-- Root Sol High → workers;
-- Luna → `sol-worker` Medium → Sol High Root;
-- automatic `sol-worker` routing;
-- Sol Advisor → routine implementation;
-- Sol as a permanent supervisor.
+An advisor's no-write behavioral contract and enforced read-only runtime permissions are separate checks. Parent live permission settings may override the role's sandbox_mode. On first use or after permission changes, perform a no-tool metadata handshake without sensitive content. Root checks correlated child model, effort, and effective sandbox/approval metadata. If the effective filesystem sandbox is not read-only or cannot be established, do not dispatch substantive consultation; report permission mismatch / unverified status. Reverify in an environment supporting independent read-only permissions or a separate read-only session. Do not change global permissions automatically or treat a standalone session as proof of Custom Agent routing. A shell sandbox does not establish read-only permissions for every connector; advisors still use read-only operations only.
 
-The normal topology must be:
+### Runtime truth
 
-```text
-Primary Luna Max
-├── LUNA_LOCAL
-├── luna-worker / Luna Max
-└── sol-advisor / Sol High
-        ↓
-     decision only
-        ↓
-Primary Luna / luna-worker executes
-```
+TOML and AGENTS.md express intent; runtime/session/Agent Activity establishes the actual model and reasoning effort. Check the selected Root profile and roles actually invoked. Uninvoked roles remain runtime-unverified. If runtime evidence is inaccessible, explicitly report it as unverified rather than inferring success from configuration.
 
-## 12. Runtime Truth
+The efforts below are migration baselines, not proven optima. Evaluate model, reasoning effort, task quality, elapsed time, tokens, and rework separately. Specify child reasoning through role configuration or supported explicit parameters rather than relying on implicit inheritance.
 
-TOML / `AGENTS.md` cannot prove which model actually ran. Only runtime/session/Agent Activity is the final source of truth.
+## Acceptance and report
 
-Expected runtime:
-
-- `luna-worker` → `gpt-5.6-luna / max`
-- `sol-advisor` → `gpt-5.6-sol / high`
-
-If actual runtime differs, report the real runtime and do not pretend the requested routing succeeded.
-
-## 13. Modification Rules
-
-Do the following:
-
-1. Read the entire current `AGENTS.md`;
-2. locate delegation / routing sections;
-3. remove routing architecture that conflicts with Luna-first / Strong Advisor;
-4. generate a concise, high-density, executable routing section;
-5. add the unique architecture marker;
-6. preserve non-routing engineering rules;
-7. do not add Strong Orchestrator compatibility;
-8. do not add automatic `sol-worker` routing;
-9. use the smallest necessary diff;
-10. do not copy this entire prompt verbatim into `AGENTS.md`;
-11. do not modify other files.
-
-Final validation must confirm:
-
-- Primary = Luna Max;
-- normal work = Luna;
-- independent parallel work = `luna-worker`;
-- difficult judgment = `sol-advisor`;
-- execution returns to Luna after a Sol decision;
-- `sol-worker` is not in the automatic routing graph;
-- Sol High is not a permanent supervisor;
-- only one routing architecture marker exists.
-
-Finally report: the modified location, removed conflicting rules, final routing graph, Sol escalation gates, diff, architecture exclusivity status, and any runtime model information that can actually be verified.
+Confirm one architecture marker and one selected Root profile, correct model/effort mappings, effective role permissions (not only TOML declarations), Root-owned routing and acceptance, and no worker/advisor recursive delegation. Check that all rules match the selected mode and obsolete exclusions are gone. Report changed locations, removed conflicts, the final routing graph, diff, and runtime evidence or its absence. Distinguish static configuration checks from actual runtime verification.
