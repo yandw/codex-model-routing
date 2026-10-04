@@ -72,9 +72,21 @@ Astra Root 自己处理最高难度判断，不例行再调用 Astra 顾问。`s
 
 # 快速开始
 
-第一次使用只需要在下面两种方式中选一种。
+先选择工作模式，再选择安装方式。**Mode A/B 是工作模式，自动/手动是安装方式；任一安装方式都能启用任一模式。**
 
-## 方式 A — 让 Codex 自动安装（推荐）
+| 你希望如何工作 | 选择模式 | 主线程 Root / reasoning | 启动入口 |
+|---|---|---|---|
+| 由 Sol 持续负责规划、判断和验收，按需委派执行 | Mode A — Strong Orchestrator | `gpt-6.1-sol / high`；明确选择时可用 `gpt-6-astra / high` | [启动模式 A](#start-mode-a) |
+| 由 Luna 负责日常工作和调度，按需调用强 worker 或顾问 | Mode B — Luna-first | `gpt-6-luna / max` | [启动模式 B](#start-mode-b) |
+
+两种模式共享四个 Agent，按任务选择角色，不需要每次启动全部角色。表中分工是项目策略，成本和质量收益仍需实测。
+
+- 第一次使用：选择下面的自动安装或手动安装，完成后进入对应模式的启动入口。
+- 已安装四个 Agent，但目标项目尚未初始化：直接进入[项目初始化](#project-initialization)。
+- 目标项目已经初始化：直接[启动模式 A](#start-mode-a)或[启动模式 B](#start-mode-b)，无需重新安装或生成 `AGENTS.md`。
+- 更换工作模式：按[切换模式](#switch-mode)更新项目规则和主线程模型。
+
+## 安装方式 1 — 让 Codex 自动安装（推荐）
 
 进入你真正要开发的项目目录，然后根据自己的 Root 使用习惯，把对应的 **Setup Prompt URL** 交给 Codex。
 
@@ -124,7 +136,7 @@ Setup Prompt 会一次完成：
 
 > Codex 需要能够访问公开 GitHub / Raw URL。如果当前运行环境禁止网络访问，请使用下面的 Manual 方式。
 
-## 方式 B — Manual
+## 安装方式 2 — Manual
 
 Manual 方式分两步：**手动安装 Agent → 在自己的项目里启用一种 routing mode。**
 
@@ -184,15 +196,19 @@ cd /path/to/your-project
 
 如果 Codex 可以访问公开 URL，也可以让它直接读取对应的 Raw AGENTS-only Prompt；如果不能，就打开文件并把内容复制给 Codex。
 
-### 已安装后，在其他项目中初始化
+<a id="project-initialization"></a>
+
+## 已安装后，初始化目标项目
 
 同一台机器、同一个 `CODEX_HOME` 下，全局 Agent 可以复用；每个项目通过自己的 `AGENTS.md` 选择路由模式。初始化新项目不需要重复安装四个 Agent。
+
+下面两份提示词也适用于手动安装后的项目初始化。本仓库自带的 `AGENTS.md` 选择 Mode A，仅作用于本项目；其他项目需要各自选择模式，不能直接覆盖已有工程规则。
 
 1. 在 Codex 中打开目标项目根目录。使用 CLI 时可运行 `codex -C /path/to/your-project`。
 2. 选择 Root 模型和 reasoning：Strong Orchestrator 默认 `gpt-6.1-sol / high`，Luna-first 使用 `gpt-6-luna / max`。使用 Astra Root 时明确选择 `gpt-6-astra / high` 并在初始化请求中说明。提示词不能自动切换当前会话模型。
 3. 将下面与你所选模式一致的提示词发给目标项目的聊天。把 `/path/to/codex-model-routing` 替换为本仓库在本机的绝对路径；如果无法访问本地文件，就粘贴对应 AGENTS-only Prompt 的完整内容。
 
-**Strong Orchestrator 初始化：**
+**Mode A — Strong Orchestrator 初始化：**
 
 ```text
 请完整读取本地提示词：
@@ -205,7 +221,7 @@ cd /path/to/your-project
 最后报告选定 Root profile、唯一架构标识、可用角色和仍未验证的 runtime 项。
 ```
 
-**Luna-first 初始化：**
+**Mode B — Luna-first 初始化：**
 
 ```text
 请完整读取本地提示词：
@@ -220,7 +236,87 @@ cd /path/to/your-project
 
 4. 初始化完成后开启新会话，让项目规则加载。核对所选 Root profile 和四个角色的模型映射；角色缺失、旧映射或 runtime 不符时先报告并处理，不以磁盘文件存在判定成功。
 
-之后可以直接提出任务，由 Root 按项目规则选择角色，也可以明确指定：
+初始化和切换只更新项目规则，不能自动切换当前线程的模型。完成后使用下面对应的启动步骤。
+
+<a id="start-mode-a"></a>
+
+## 启动模式 A — Strong Orchestrator
+
+前提：四个 Agent 已安装，目标项目 `AGENTS.md` 已按 Mode A 初始化。
+
+1. **Codex App**：打开目标项目，新建聊天，选择 `gpt-6.1-sol` 和 `high`。若明确使用 Astra Root，则选择 `gpt-6-astra / high`，并确保项目记录的唯一 Root profile 也已更新为它。
+2. **CLI**：也可以用下面的命令开启目标项目的新会话；它设置本次 Root 模型与 reasoning，不修改全局配置，也不代替项目初始化。明确使用 Astra Root 时将模型替换为 `gpt-6-astra`，reasoning 保持 `high`。
+
+   ```bash
+   codex -C /path/to/your-project --model gpt-6.1-sol \
+     -c 'model_reasoning_effort="high"'
+   ```
+
+3. 发送下面的任务提示词，将任务和验收标准替换为实际内容：
+
+   ```text
+   请按本项目 AGENTS.md 的 Mode A / Strong Orchestrator 模式完成任务。
+   先核对当前 Root 模型、reasoning 与项目 profile，以及可用 Custom Agents；不符时报告。
+   由 Root 负责规划、调度、集成和最终验收。
+   必要时将明确执行委派给 luna-worker，将复杂执行委派给 sol-worker。
+   Sol Root 经调查仍不能可靠解决的重大判断，或高失败代价且歧义显著的决策，可咨询 astra-advisor；咨询前核验有效只读权限。
+   sol-advisor 仅在我明确要求独立咨询时使用；Astra Root 不例行再调用 Astra 顾问。
+   委派时说明修改范围、验收标准和验证要求，不强制使用全部角色。
+
+   任务：……
+   验收标准：……
+   ```
+
+<a id="start-mode-b"></a>
+
+## 启动模式 B — Luna-first
+
+前提：四个 Agent 已安装，目标项目 `AGENTS.md` 已按 Mode B 初始化。
+
+1. **Codex App**：打开目标项目，新建聊天，选择 `gpt-6-luna` 和 `max`。
+2. **CLI**：也可以用下面的命令开启新会话；它仅设置本次 Root profile，不修改全局配置，也不代替项目初始化。
+
+   ```bash
+   codex -C /path/to/your-project --model gpt-6-luna \
+     -c 'model_reasoning_effort="max"'
+   ```
+
+3. 发送下面的任务提示词，将任务和验收标准替换为实际内容：
+
+   ```text
+   请按本项目 AGENTS.md 的 Mode B / Luna-first 模式完成任务。
+   先核对当前 Root 为 gpt-6-luna / max，以及可用 Custom Agents；不符时报告。
+   由 Luna 负责日常工作、调度、集成和最终验收。
+   能可靠完成且本地更经济时自行执行；独立且有并行收益的明确任务可交给 luna-worker。
+   复杂执行可直接交给 sol-worker，不要求先咨询顾问。
+   局部设计、兼容性取舍或困难根因判断按需咨询 sol-advisor。
+   高失败代价且歧义显著、跨系统重大取舍，或 Sol 咨询后仍未解决的重大判断，按需咨询 astra-advisor。
+   顾问咨询前核验有效只读权限；建议返回 Luna 后，由合适的执行者实现。
+   委派时说明修改范围、验收标准和验证要求，不强制逐级调用或使用全部角色。
+
+   任务：……
+   验收标准：……
+   ```
+
+<a id="switch-mode"></a>
+
+## 在模式 A/B 之间切换
+
+1. 在目标项目聊天中，完整执行[项目初始化](#project-initialization)里目标模式的 AGENTS-only 提示词。替换旧 routing section，保留工程规则；不要叠加两种模式，也不需要重复安装相同版本的四个 Agent。
+2. 检查 `AGENTS.md` 只有一个架构标识、一个选定 Root profile，且二者一致：
+
+   | 目标模式 | 唯一架构标识 | 默认 Root profile |
+   |---|---|---|
+   | Mode A | `<!-- ROUTING_ARCHITECTURE: STRONG_ORCHESTRATOR -->` | `gpt-6.1-sol / high`；可明确选择 Astra profile |
+   | Mode B | `<!-- ROUTING_ARCHITECTURE: LUNA_FIRST_STRONG_ADVISOR -->` | `gpt-6-luna / max` |
+
+3. 开启新会话，按目标模式的 App 或 CLI 步骤选择模型与 reasoning，再发送任务提示词。仅在聊天中说“切换为模式 B”，或仅修改 `AGENTS.md`，不能证明实际 Root 已改变。检查实际元数据，不沿用旧会话的验收结论。
+
+### 启动后如何检查与指定角色
+
+开始任务前核对项目模式、Root profile 与已注册角色；角色缺失、映射过时或实际模型不符时报告并处理。无法读取实际元数据时标记未验证。首次实际调用某个角色后，再按[运行时验证指南](docs/runtime-verification.md)核验对应子会话，未调用的角色保留为未验证。
+
+也可以在任一模式下明确指定执行角色：
 
 ```text
 请使用 luna-worker 检查这个模块的测试覆盖情况，只读调查，不修改代码。

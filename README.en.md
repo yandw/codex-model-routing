@@ -72,9 +72,21 @@ Configure model and reasoning separately. These efforts are starting points, not
 
 # Quick Start
 
-Choose one of the following two setup paths.
+Choose a working mode first, then an installation method. **Modes A/B define how you work; automatic/manual installation defines how you install. Either method can enable either mode.**
 
-## Option A — Let Codex install everything (recommended)
+| Preferred workflow | Mode | Root model / reasoning | Launch instructions |
+|---|---|---|---|
+| Sol retains planning, judgment, and acceptance while delegating execution as needed | Mode A — Strong Orchestrator | `gpt-6.1-sol / high`; optionally `gpt-6-astra / high` when explicitly selected | [Start Mode A](#start-mode-a) |
+| Luna handles daily work and orchestration, calling stronger workers or advisors as needed | Mode B — Luna-first | `gpt-6-luna / max` | [Start Mode B](#start-mode-b) |
+
+Both modes share the same four agents and select roles per task; every task need not launch all four. These divisions are project policies; cost and quality benefits still require measurement.
+
+- First use: choose automatic or manual installation below, then follow the launch instructions for your mode.
+- Agents already installed, target project not initialized: go directly to [project initialization](#project-initialization).
+- Target project already initialized: [start Mode A](#start-mode-a) or [start Mode B](#start-mode-b) without reinstalling agents or regenerating `AGENTS.md`.
+- Changing modes: follow [switching modes](#switch-mode) to update project rules and the Root model.
+
+## Installation method 1 — Let Codex install everything (recommended)
 
 Open the repository you actually want to work on, then give Codex the matching **Setup Prompt URL** for your preferred Root-model habit.
 
@@ -124,7 +136,7 @@ validate installation, routing architecture, and any runtime evidence that is av
 
 > Codex must be able to access public GitHub / Raw URLs. If the current environment blocks network access, use the Manual option below.
 
-## Option B — Manual
+## Installation method 2 — Manual
 
 The Manual path has two steps: **install the Agents yourself → enable one routing mode in your own project.**
 
@@ -184,15 +196,19 @@ Then give Codex one **AGENTS-only Prompt**. It changes only the current project'
 
 If Codex can access public URLs, you can also ask it to read the corresponding Raw AGENTS-only Prompt directly. If not, open the file and paste its contents into Codex.
 
-### Initialize another project after installation
+<a id="project-initialization"></a>
+
+## Initialize the target project after installation
 
 Global agents can be reused on the same machine under the same `CODEX_HOME`; each project selects its routing mode through its own `AGENTS.md`. Initializing another project does not require reinstalling the four agents.
+
+The two prompts below also apply after manual installation. This repository's own `AGENTS.md` selects Mode A for this project only; other projects select their own mode while preserving existing engineering rules.
 
 1. Open the target project root in Codex. For the CLI, run `codex -C /path/to/your-project`.
 2. Select the Root model and reasoning effort: Strong Orchestrator defaults to `gpt-6.1-sol / high`; Luna-first uses `gpt-6-luna / max`. For Astra Root, explicitly select `gpt-6-astra / high` and state that choice in the initialization request. A prompt cannot switch the current session's model automatically.
 3. Send the matching prompt below to the target project's chat. Replace `/path/to/codex-model-routing` with this repository's absolute local path. If the local file is inaccessible, paste the complete matching AGENTS-only Prompt instead.
 
-**Strong Orchestrator initialization:**
+**Mode A — Strong Orchestrator initialization:**
 
 ```text
 Read the complete local prompt:
@@ -205,7 +221,7 @@ Do not reinstall global agents or change global model or permission settings.
 Report the selected Root profile, unique architecture marker, available roles, and runtime checks that remain unverified.
 ```
 
-**Luna-first initialization:**
+**Mode B — Luna-first initialization:**
 
 ```text
 Read the complete local prompt:
@@ -220,7 +236,87 @@ Report the selected Root profile, unique architecture marker, available roles, a
 
 4. Start a new session after initialization so the project rules load. Check the selected Root profile and all four role mappings. Report and address missing roles, stale mappings, or runtime mismatches; files on disk alone do not establish success.
 
-Then describe a task and let Root choose a role under the project policy, or request one explicitly:
+Initialization and switching update project rules; they cannot automatically change the current session's model. Follow the matching launch instructions below afterward.
+
+<a id="start-mode-a"></a>
+
+## Start Mode A — Strong Orchestrator
+
+Prerequisites: the four agents are installed and the target project's `AGENTS.md` has been initialized for Mode A.
+
+1. **Codex App**: open the target project, start a new chat, and select `gpt-6.1-sol` with `high`. If explicitly using Astra Root, select `gpt-6-astra / high` and ensure the project's single selected Root profile has also been updated to match.
+2. **CLI**: alternatively, start a new session in the target project with the command below. It sets the Root model and reasoning for this invocation without changing global configuration or replacing project initialization. For an explicitly selected Astra Root, replace the model with `gpt-6-astra` and keep reasoning at `high`.
+
+   ```bash
+   codex -C /path/to/your-project --model gpt-6.1-sol \
+     -c 'model_reasoning_effort="high"'
+   ```
+
+3. Send the following task prompt, replacing the task and acceptance criteria:
+
+   ```text
+   Complete this task under Mode A / Strong Orchestrator in this project's AGENTS.md.
+   First check the actual Root model and reasoning against the project profile, plus available Custom Agents; report mismatches.
+   Root owns planning, orchestration, integration, and final acceptance.
+   Delegate clear execution to luna-worker and complex execution to sol-worker when useful.
+   Sol Root may consult astra-advisor for major judgment it cannot reliably resolve after investigation, or decisions with high failure cost and significant ambiguity; verify effective read-only permissions first.
+   Use sol-advisor only when I explicitly request independent consultation; Astra Root does not routinely call another Astra advisor.
+   Define writable scope, acceptance criteria, and validation for each delegation; do not require every role.
+
+   Task: ...
+   Acceptance criteria: ...
+   ```
+
+<a id="start-mode-b"></a>
+
+## Start Mode B — Luna-first
+
+Prerequisites: the four agents are installed and the target project's `AGENTS.md` has been initialized for Mode B.
+
+1. **Codex App**: open the target project, start a new chat, and select `gpt-6-luna` with `max`.
+2. **CLI**: alternatively, start a new session with the command below. It sets only this invocation's Root profile without changing global configuration or replacing project initialization.
+
+   ```bash
+   codex -C /path/to/your-project --model gpt-6-luna \
+     -c 'model_reasoning_effort="max"'
+   ```
+
+3. Send the following task prompt, replacing the task and acceptance criteria:
+
+   ```text
+   Complete this task under Mode B / Luna-first in this project's AGENTS.md.
+   First check that the actual Root is gpt-6-luna / max and check available Custom Agents; report mismatches.
+   Luna owns daily work, orchestration, integration, and final acceptance.
+   Work locally when reliable and more economical; delegate clear independent tasks to luna-worker when parallel execution helps.
+   Send complex execution directly to sol-worker without requiring advisor consultation first.
+   Consult sol-advisor for local design, compatibility trade-offs, or difficult root-cause judgment as needed.
+   Consult astra-advisor for decisions with high failure cost and significant ambiguity, major cross-system trade-offs, or major judgment still unresolved after Sol consultation.
+   Verify effective read-only permissions before consultation; return advice to Luna and select a suitable executor for implementation.
+   Define writable scope, acceptance criteria, and validation for each delegation; do not require sequential escalation or every role.
+
+   Task: ...
+   Acceptance criteria: ...
+   ```
+
+<a id="switch-mode"></a>
+
+## Switch between Modes A/B
+
+1. In the target project's chat, fully apply the target mode's AGENTS-only prompt under [project initialization](#project-initialization). Replace the old routing section and preserve engineering rules. Do not stack both modes or reinstall the same version of the four agents.
+2. Check that `AGENTS.md` contains exactly one architecture marker and one selected Root profile, with matching values:
+
+   | Target mode | Unique architecture marker | Default Root profile |
+   |---|---|---|
+   | Mode A | `<!-- ROUTING_ARCHITECTURE: STRONG_ORCHESTRATOR -->` | `gpt-6.1-sol / high`; Astra profile available when explicitly selected |
+   | Mode B | `<!-- ROUTING_ARCHITECTURE: LUNA_FIRST_STRONG_ADVISOR -->` | `gpt-6-luna / max` |
+
+3. Start a new session, select the target model and reasoning using its App or CLI instructions, then send the task prompt. Saying “switch to Mode B” or editing only `AGENTS.md` does not establish an actual Root-model change. Check runtime metadata rather than reusing acceptance conclusions from the old session.
+
+### Check startup and request specific roles
+
+Before starting work, check the project mode, Root profile, and registered roles; report and address missing roles, stale mappings, or actual model mismatches. Mark unavailable runtime metadata as unverified. After a role's first actual invocation, verify the corresponding child session using the [runtime guide](docs/runtime-verification.md); roles not invoked remain unverified.
+
+You can also request an execution role explicitly in either mode:
 
 ```text
 Use luna-worker to inspect test coverage for this module. Investigate without modifying code.
