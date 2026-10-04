@@ -8,6 +8,8 @@
 
 只将下列四个文件直接安装到 `~/.codex/agents/`，保留其他 Agent 和全局配置。先读取已有目标文件，对有变化的文件保留可恢复备份；将四个来源文件全部下载到临时目录，依据下方共享 Agent Pool 校验 TOML、name、model/effort 和 sandbox 后再替换已安装文件。下载或校验失败时保留现有 Agent，不进行部分更新。复制后校验安装内容。不要安装成 `agents/agents/`。
 
+备份必须放在 Agent 加载目录之外，例如 `~/.codex/agent-backups/<timestamp>/`。不要在 `~/.codex/agents/` 或项目 `.codex/agents/` 中保留任何 `.toml` 备份（包括 `luna-worker.backup.toml`）；其中的相同 `name` 会被再次加载并造成同名角色冲突。已存在这类备份时，确认内容并移到加载目录外，保留可恢复副本；不要直接删除。使用自定义 `CODEX_HOME` 时，安装和备份路径均以该目录为准。
+
 声明就绪前，检查当前角色选择接口、模型/effort 可用性和有效权限验证能力。可为将来的兼容会话安装配置，但当前客户端不具备这些能力时，应报告 runtime 不可用。复制或复制后校验失败时，从备份恢复已改动的目标文件，在更新 AGENTS.md 前停止。
 
 来源文件：

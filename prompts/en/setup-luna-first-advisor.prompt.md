@@ -8,6 +8,8 @@ Run this prompt in the target project. Install the four shared Custom Agents, th
 
 Install only the four files below directly under `~/.codex/agents/`. Preserve unrelated agents and global configuration. Read existing target files first, preserve a recoverable backup of changed files, download all four files into a temporary directory, and validate their TOML, names, model/effort mappings, and sandbox modes against the Shared Agent Pool below before replacing any installed file. A failed download or validation must leave existing agents intact. Verify installed content after copying. Do not create an extra `agents/agents/` level.
 
+Keep backups outside agent-loading directories, for example `~/.codex/agent-backups/<timestamp>/`. Do not leave `.toml` backups in `~/.codex/agents/` or project `.codex/agents/`, including `luna-worker.backup.toml`: their unchanged `name` is loaded again and causes duplicate-role conflicts. If such backups already exist, inspect and move them outside the loading directories while preserving recoverable copies; do not delete them outright. With a custom `CODEX_HOME`, resolve both installation and backup paths under that directory.
+
 Check current role-selection support, model/effort availability, and effective-permission verification capability before declaring readiness. Configuration may be installed for a future compatible session, but report runtime unavailable when the current client lacks these capabilities. If copying or post-copy verification fails, restore the changed target files from backups and stop before updating AGENTS.md.
 
 Source files:

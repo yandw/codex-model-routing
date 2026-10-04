@@ -132,11 +132,23 @@ Manual 方式分两步：**手动安装 Agent → 在自己的项目里启用一
 
 Clone 本仓库后执行：
 
+若已有安装，先把将被覆盖的角色文件备份到 Agent 加载目录之外。下面的命令在 `agent-backups/` 创建独立目录；任一备份失败都会停止安装。不要在 `agents/` 中保存 `.toml` 备份，否则相同 `name` 会被重复加载。自定义 `CODEX_HOME` 时使用该目录。
+
 ```bash
 git clone https://github.com/yandw/codex-model-routing.git
 cd codex-model-routing
-mkdir -p ~/.codex/agents
-cp .codex/agents/*.toml ~/.codex/agents/
+(
+  routing_codex_home="${CODEX_HOME:-$HOME/.codex}"
+  mkdir -p "$routing_codex_home/agents" "$routing_codex_home/agent-backups" || exit 1
+  routing_backup_dir="$(mktemp -d "$routing_codex_home/agent-backups/routing-XXXXXX")" || exit 1
+  for routing_role in luna-worker sol-worker sol-advisor astra-advisor; do
+    routing_target="$routing_codex_home/agents/$routing_role.toml"
+    if [ -e "$routing_target" ]; then
+      cp -p "$routing_target" "$routing_backup_dir/" || exit 1
+    fi
+  done
+  cp .codex/agents/*.toml "$routing_codex_home/agents/"
+)
 ```
 
 最终应该得到：
@@ -172,6 +184,56 @@ cd /path/to/your-project
 
 如果 Codex 可以访问公开 URL，也可以让它直接读取对应的 Raw AGENTS-only Prompt；如果不能，就打开文件并把内容复制给 Codex。
 
+### 已安装后，在其他项目中初始化
+
+同一台机器、同一个 `CODEX_HOME` 下，全局 Agent 可以复用；每个项目通过自己的 `AGENTS.md` 选择路由模式。初始化新项目不需要重复安装四个 Agent。
+
+1. 在 Codex 中打开目标项目根目录。使用 CLI 时可运行 `codex -C /path/to/your-project`。
+2. 选择 Root 模型和 reasoning：Strong Orchestrator 默认 `gpt-6.1-sol / high`，Luna-first 使用 `gpt-6-luna / max`。使用 Astra Root 时明确选择 `gpt-6-astra / high` 并在初始化请求中说明。提示词不能自动切换当前会话模型。
+3. 将下面与你所选模式一致的提示词发给目标项目的聊天。把 `/path/to/codex-model-routing` 替换为本仓库在本机的绝对路径；如果无法访问本地文件，就粘贴对应 AGENTS-only Prompt 的完整内容。
+
+**Strong Orchestrator 初始化：**
+
+```text
+请完整读取本地提示词：
+/path/to/codex-model-routing/prompts/strong-orchestrator-agents-md.prompt.md
+
+按其中的 Strong Orchestrator 策略更新当前项目根目录的 AGENTS.md。
+保留已有工程流程、Skills、worktree、testing、review 和 Git 规则，只更新模型路由部分。
+核对已安装的 Custom Agents 和当前角色调用接口。
+不要重复安装全局 Agent，也不要修改全局模型或权限配置。
+最后报告选定 Root profile、唯一架构标识、可用角色和仍未验证的 runtime 项。
+```
+
+**Luna-first 初始化：**
+
+```text
+请完整读取本地提示词：
+/path/to/codex-model-routing/prompts/luna-first-advisor-agents-md.prompt.md
+
+按其中的 Luna-first / Cheap Orchestrator + Strong Advisor 策略更新当前项目根目录的 AGENTS.md。
+保留已有工程流程、Skills、worktree、testing、review 和 Git 规则，只更新模型路由部分。
+核对已安装的 Custom Agents 和当前角色调用接口。
+不要重复安装全局 Agent，也不要修改全局模型或权限配置。
+最后报告选定 Root profile、唯一架构标识、可用角色和仍未验证的 runtime 项。
+```
+
+4. 初始化完成后开启新会话，让项目规则加载。核对所选 Root profile 和四个角色的模型映射；角色缺失、旧映射或 runtime 不符时先报告并处理，不以磁盘文件存在判定成功。
+
+之后可以直接提出任务，由 Root 按项目规则选择角色，也可以明确指定：
+
+```text
+请使用 luna-worker 检查这个模块的测试覆盖情况，只读调查，不修改代码。
+由主线程整理结果并决定后续修改。
+```
+
+```text
+请使用 sol-worker 修复这个跨文件问题。
+先定义修改范围和验收标准，由主线程负责最终验证。
+```
+
+顾问调用前必须核验有效只读权限；继承可写权限或无法确认时，停止实质咨询，按[权限不匹配处理流程](docs/runtime-verification.md#recover-from-advisor-permission-mismatch)使用独立只读会话。仅安装配置和生成 `AGENTS.md` 不代表完整路由已经通过运行验收。
+
 ---
 
 # 四个 Agent 分别是干什么的？
@@ -195,7 +257,7 @@ cd /path/to/your-project
 
 ## 已安装用户如何升级
 
-重新执行所选模式的 Setup Prompt。四个 TOML 和项目 routing section 需要一起更新，单独替换模型名会残留旧路由规则。手动覆盖已有 Agent 文件前先备份。
+重新执行所选模式的 Setup Prompt。四个 TOML 和项目 routing section 需要一起更新，单独替换模型名会残留旧路由规则。手动覆盖已有 Agent 文件前，按上方命令备份到 `agent-backups/`，不在 `agents/` 中创建 `.toml` 备份。
 
 Mode A 新增可选 Astra Root profile，以及 Sol Root 的 Astra 咨询路径。Mode B 移除旧版禁用 `sol-worker` 的规则，咨询后的实现由 Root 交给适合的执行者。保留一个 architecture marker 和一个选定 Root profile，分别验证角色注册和实际 runtime。
 

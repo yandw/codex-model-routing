@@ -40,6 +40,25 @@ python3 -m unittest discover -s tests -v
 
 父会话实时权限可能覆盖角色沙箱。实质咨询前先用无工具握手取得元数据；advisor 实际为 workspace-write 或无法确认 read-only 时，停止该咨询并报告受限。可在支持独立角色权限的宿主或独立 read-only 会话中重新验证；后者不能冒充同一 Custom Agent 调用链已验证。不要自动修改全局权限。来源：[官方 Subagents 文档](https://learn.chatgpt.com/docs/agent-configuration/subagents)。
 
+## Recover from advisor permission mismatch
+
+当前记录的失败来自顾问继承了可写父会话权限；重复安装同一份 TOML 或改写角色说明不能证明沙箱变成只读。不要为消除 mismatch 而把顾问预期改成 workspace-write。
+
+1. 保留可写 Root 的工程上下文，停止向权限不匹配的顾问派发实质咨询。先在独立的新会话中选择只读权限，不修改全局默认权限。App 使用当前客户端提供的只读权限选项；没有该选项时，不声称已建立只读环境。
+2. CLI 可开启下面的独立只读咨询会话（按需将模型改为 `gpt-6-astra`）。参数只影响本次调用；`never` 禁止通过批准流程升级 Shell 权限：
+
+   ```bash
+   codex -C /path/to/your-project --sandbox read-only --ask-for-approval never \
+     --model gpt-6.1-sol -c 'model_reasoning_effort="high"'
+   ```
+
+3. 首先检查该会话实际生效的权限和角色选择接口。若支持本仓库的 Custom Agent 调用，在无工具握手后，用上方脚本核验关联子会话的 model、effort、sandbox 和 approval 元数据，确认只读后才进行咨询。没有角色选择接口时，可以把独立会话当作只读咨询，但不能标记同一 Custom Agent 路由已验证；上方脚本只接受具有真实父子身份的子会话，不为独立 Root 伪造这些字段。
+4. 将顾问结论带回原来的可写 Root，由 Root 或 worker 实现和验证。只读咨询会话不能承担写入实现，也不证明可写 worker 在同一个只读父会话中可用。
+
+这为当前宿主提供独立只读咨询的处理路径。要验证原来的混合权限拓扑，仍需宿主实际支持可写 Root 与只读 child 的隔离，并完成下方场景中的代表性任务。Shell 只读不能替代连接器权限控制。仅在取得对应运行证据后更新验证记录；保留旧的失败结果，不覆盖历史记录。
+
+English: use a separate read-only consultation session when a writable parent overrides advisor permissions. The CLI command above narrows only that invocation and disables shell approval escalation. Verify effective child metadata before substantive Custom Agent consultation. A standalone consultation is not evidence for the mixed-permission topology; return its decision to the writable Root for implementation.
+
 ## Inspect relevant sessions
 
 优先定位本次实际调用对应的子会话，而不是把无关会话中的模型字符串当作证据。已知 JSONL 路径后可用下面的命令定位候选记录：

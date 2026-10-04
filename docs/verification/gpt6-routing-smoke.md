@@ -69,3 +69,11 @@ git diff --check
 The 14 regression tests cover inherited writable sandbox, changed effort/model/role, unrelated parents, missing metadata, message-text false positives, mixed sessions, and task completion separate from configuration. All passed. TOML mappings, supported effort values from the local model catalog, bilingual policy parity, relative links, and SVG rendering were also checked.
 
 Remaining work before claiming complete runtime readiness: establish enforced advisor read-only permissions on a compatible host, rerun substantive consultations, and exercise both modes on representative engineering tasks. Other effort profiles, `ultra`, quality, and cost improvements remain untested.
+
+## 2026-10-04 follow-up: backups and standalone sandbox
+
+The four bilingual setup prompts now require backups outside agent-loading directories. Both READMEs provide the same backup-before-copy commands, respect a custom `CODEX_HOME`, preserve unrelated roles, and stop on backup failure. An isolated installation with four existing role files confirmed that all originals were preserved outside `agents/`, all four new files matched their sources, and Codex reported no duplicate-role loading warning.
+
+An offline `codex sandbox --permission-profile :read-only` probe, run outside the enclosing agent sandbox, read this repository's README successfully and received `PermissionError` when attempting to create a temporary file in the repository. The probe made no model request and left no probe file. This verifies filesystem enforcement for that standalone sandbox command, not for a Custom Agent spawned from a writable Root.
+
+The [runtime guide](../runtime-verification.md#recover-from-advisor-permission-mismatch) now explains a separate read-only consultation session and how to return its decision to the writable Root. The existing writable-parent advisor failures above remain valid historical evidence. No new advisor invocation or full workflow acceptance was performed in this follow-up. The 14 existing regression tests passed; global agent installations and permission defaults were not changed.

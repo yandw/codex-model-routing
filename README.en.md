@@ -132,11 +132,23 @@ The Manual path has two steps: **install the Agents yourself → enable one rout
 
 Clone this repository and run:
 
+For an existing installation, back up the role files being replaced outside agent-loading directories first. The commands below create a separate `agent-backups/` directory and stop installation if any backup fails. Do not store `.toml` backups in `agents/`, where their unchanged `name` is loaded again. A custom `CODEX_HOME` is respected.
+
 ```bash
 git clone https://github.com/yandw/codex-model-routing.git
 cd codex-model-routing
-mkdir -p ~/.codex/agents
-cp .codex/agents/*.toml ~/.codex/agents/
+(
+  routing_codex_home="${CODEX_HOME:-$HOME/.codex}"
+  mkdir -p "$routing_codex_home/agents" "$routing_codex_home/agent-backups" || exit 1
+  routing_backup_dir="$(mktemp -d "$routing_codex_home/agent-backups/routing-XXXXXX")" || exit 1
+  for routing_role in luna-worker sol-worker sol-advisor astra-advisor; do
+    routing_target="$routing_codex_home/agents/$routing_role.toml"
+    if [ -e "$routing_target" ]; then
+      cp -p "$routing_target" "$routing_backup_dir/" || exit 1
+    fi
+  done
+  cp .codex/agents/*.toml "$routing_codex_home/agents/"
+)
 ```
 
 The final layout should be:
@@ -172,6 +184,56 @@ Then give Codex one **AGENTS-only Prompt**. It changes only the current project'
 
 If Codex can access public URLs, you can also ask it to read the corresponding Raw AGENTS-only Prompt directly. If not, open the file and paste its contents into Codex.
 
+### Initialize another project after installation
+
+Global agents can be reused on the same machine under the same `CODEX_HOME`; each project selects its routing mode through its own `AGENTS.md`. Initializing another project does not require reinstalling the four agents.
+
+1. Open the target project root in Codex. For the CLI, run `codex -C /path/to/your-project`.
+2. Select the Root model and reasoning effort: Strong Orchestrator defaults to `gpt-6.1-sol / high`; Luna-first uses `gpt-6-luna / max`. For Astra Root, explicitly select `gpt-6-astra / high` and state that choice in the initialization request. A prompt cannot switch the current session's model automatically.
+3. Send the matching prompt below to the target project's chat. Replace `/path/to/codex-model-routing` with this repository's absolute local path. If the local file is inaccessible, paste the complete matching AGENTS-only Prompt instead.
+
+**Strong Orchestrator initialization:**
+
+```text
+Read the complete local prompt:
+/path/to/codex-model-routing/prompts/en/strong-orchestrator-agents-md.prompt.md
+
+Apply its Strong Orchestrator policy to the current project's root AGENTS.md.
+Preserve existing engineering workflow, skills, worktree, testing, review, and Git rules; update only model routing.
+Check the installed Custom Agents and the current role-selection interface.
+Do not reinstall global agents or change global model or permission settings.
+Report the selected Root profile, unique architecture marker, available roles, and runtime checks that remain unverified.
+```
+
+**Luna-first initialization:**
+
+```text
+Read the complete local prompt:
+/path/to/codex-model-routing/prompts/en/luna-first-advisor-agents-md.prompt.md
+
+Apply its Luna-first / Cheap Orchestrator + Strong Advisor policy to the current project's root AGENTS.md.
+Preserve existing engineering workflow, skills, worktree, testing, review, and Git rules; update only model routing.
+Check the installed Custom Agents and the current role-selection interface.
+Do not reinstall global agents or change global model or permission settings.
+Report the selected Root profile, unique architecture marker, available roles, and runtime checks that remain unverified.
+```
+
+4. Start a new session after initialization so the project rules load. Check the selected Root profile and all four role mappings. Report and address missing roles, stale mappings, or runtime mismatches; files on disk alone do not establish success.
+
+Then describe a task and let Root choose a role under the project policy, or request one explicitly:
+
+```text
+Use luna-worker to inspect test coverage for this module. Investigate without modifying code.
+Have the main thread summarize the findings and decide what to change next.
+```
+
+```text
+Use sol-worker to fix this cross-file issue.
+Define the writable scope and acceptance criteria first; have the main thread perform final verification.
+```
+
+Verify effective read-only permissions before invoking an advisor. If it inherits write access or permissions are unknown, stop substantive consultation and use the [permission-mismatch recovery procedure](docs/runtime-verification.md#recover-from-advisor-permission-mismatch) for a separate read-only session. Installed files and generated `AGENTS.md` do not establish full runtime acceptance.
+
 ---
 
 # What do the four Agents do?
@@ -195,7 +257,7 @@ Advisor `read-only` in the tables is the required sandbox, not a guarantee that 
 
 ## Upgrading an existing installation
 
-Re-run the setup prompt for your selected mode. Update the four TOML files and replace the old project routing section together; changing model strings alone leaves obsolete routing rules active. Back up existing agent files before manual replacement.
+Re-run the setup prompt for your selected mode. Update the four TOML files and replace the old project routing section together; changing model strings alone leaves obsolete routing rules active. Use the commands above to back up existing agent files in `agent-backups/`, without creating `.toml` backups in `agents/`.
 
 Mode A adds an optional Astra Root profile and Astra consultation for Sol Root. Mode B removes the old `sol-worker` exclusion and routes post-consultation implementation to a suitable executor. Keep one architecture marker and one selected Root profile. Verify current role registration and runtime separately.
 
